@@ -16,7 +16,7 @@ Requirements
 - pip install aif360
 - pip install BlackBoxAuditing
 
-And done! you installed trustAI successfully! 
+And done! You have successfully installed trustAI! 
 
 ### Next Steps
 You can learn how to use trustAI following the test cases included in test/ directory.
