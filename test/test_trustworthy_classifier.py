@@ -27,7 +27,7 @@ print("1. Dataset")
 
 # Import Data
 print("    Import Data")
-dataset_german = pd.read_csv("test/datasets/german.csv", sep=",")
+dataset_german = pd.read_csv("datasets/german.csv", sep=",")
 # Prepare data
 print("    Prepare Data")
 label_name = "Credit Score"
