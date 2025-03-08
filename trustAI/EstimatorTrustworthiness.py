@@ -3,92 +3,78 @@ from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from trustAI.Constants import LINGUISTIC_VALUES, LINGUISTIC_LABELS, TRUSTWORTHINESS_SCORE_NAME
+from trustAI.Constants import LINGUISTIC_VALUES, LINGUISTIC_LABELS, TRUSTWORTHINESS_SCORE_NAME, FUZZY_THRESHOLD_PEAKS, get_metric_thresholds
 from trustAI.Metrics import MetricList
 
 class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
     """
     TrustworthinessEstimator is a scikit-learn compatible transformer that evaluates the trustworthiness of models based on various metrics. 
     It uses fuzzy logic to assign linguistic labels to metric values and calculates a trustworthiness score for each model.
-    Attributes:
-        weights (dict): A dictionary of weights for each metric. Default is an empty dictionary.
-        verbose (bool): If True, prints detailed information during operations. Default is False.
-        thresholds_ (dict): A dictionary storing the fuzzy triangle peaks (thresholds) for each metric.
-    Methods:
-        __init__(self, weights=None, verbose=False):
-            Initializes the TrustworthinessEstimator with optional weights and verbosity.
-        fit(self, X, y=None):
-            Fits the model by calculating fuzzy triangle peaks (thresholds) for each metric.
-                X (pd.DataFrame): DataFrame containing metrics for each model.
-                y: Not used, included to match scikit-learn conventions.
-                self: Fitted estimator.
-        _fuzzy_triangle_peaks(self, df, column):
-            Defines fuzzy triangle peaks based on quantiles for each metric.
-                df (pd.DataFrame): DataFrame containing the metric.
-                column (str): Column name of the metric.
-                thresholds (dict): Dictionary of threshold values.
-        _triangular_membership(self, x, delta_low, delta_peak, delta_high):
-            Calculates triangular membership for a given value.
-                x (float): Value to calculate membership for.
-                delta_low (float): Start of the triangle.
-                delta_peak (float): Peak of the triangle.
-                delta_high (float): End of the triangle.
-                result (float): Membership value.
-        _assign_linguistic_label(self, value, thresholds):
-            Assigns a linguistic label based on the calculated membership values.
-                value (float): The metric value to evaluate.
-                thresholds (dict): Dictionary of peak thresholds.
-                linguistic_value (int): Assigned linguistic value.
-                S (float): Weighted sum of linguistic values.
-        transform(self, X):
-            Transforms the data to calculate trustworthiness scores.
-                X (pd.DataFrame): DataFrame containing metrics for each model.
-                result (pd.DataFrame): Original DataFrame with an additional column for trustworthiness score.
-        plot_results(self, s_values, title=None, save_path=None):
-            Plots a radar chart of S values for each model and optionally saves it as an image.
-                s_values (pd.DataFrame): DataFrame with S values for each metric and model.
-                title (str, optional): Title displayed at the top of the chart.
-                save_path (str, optional): File path to save the image. Supported formats include .png, .jpg, .pdf, .svg.
-        plot_trustworthiness_scores(self, s_values, title=None, save_path=None):
-            Plots a horizontal bar chart of the Trustworthiness Scores.
-                s_values (pd.DataFrame): DataFrame containing the 'Trustworthiness_Score' column for each model.
-                title (str, optional): Title displayed at the top of the chart.
-                save_path (str, optional): Path to save the chart image. Supported formats include .png, .jpg, .pdf, etc.
-        plot_combined_charts(self, s_values, title=None, save_path=None):
-            Plots a radar chart of S values and a horizontal bar chart of Trustworthiness Scores side by side, and optionally saves as an image.
-                s_values (pd.DataFrame): DataFrame containing S values and 'Trustworthiness_Score' for each model.
-                title (str, optional): Title displayed at the top of the charts.
-                save_path (str, optional): File path to save the image. Supported formats include .png, .jpg, .pdf, .svg.
     """
-    def __init__(self, weights=None, verbose=False):
+    
+    def __init__(self, verbose: bool=False):
         """
         Initialize the TrustworthinessEstimator with weights for each metric.
 
         Parameters:
-        - weights (dict): A dictionary of weights for each metric, default is None.
         - verbose (bool): If True, print detailed information during operations.
         """
-        self.weights = weights if weights is not None else {}
+        self.weights = None 
         self.verbose = verbose
-        self.thresholds_ = {}
+        self.thresholds_ = None
+        self.trustworthiness_score = None
 
-    def fit(self, X, y=None):
+    def fit(self, fuzzy_functions_thresholds: pd.DataFrame = None, metrics_values: pd.DataFrame = None, metric_list: MetricList = None):
         """
-        Fit the model by calculating fuzzy triangle peaks (thresholds) for each metric.
-
+        Fit the model by setting fuzzy triangle peaks (thresholds) for each metric.
+        
+        
         Parameters:
-        - X (pd.DataFrame): DataFrame containing metrics for each model.
-        - y: Not used, included to match scikit-learn conventions.
-
+        - fuzzy_functions_thresholds (pd.DataFrame): 
+            DataFrame containing fuzzy triangle peaks for each metric. The DataFrame should have peaks as columns and metrics as rows.
+            Example of a fuzzy_functions_thresholds DataFrame:
+            |         | Metric1 | Metric2 | Metric3 | Metric4 | Metric5 |
+            |---------|---------|---------|---------|---------|---------|
+            | peak_-2 | 0.1     | 0.2     | 0.2     | 0.2     | 0.2     |
+            | peak_-1 | 0.3     | 0.4     | 0.4     | 0.4     | 0.4     |
+            | peak_0  | 0.5     | 0.6     | 0.6     | 0.6     | 0.6     |
+            | peak_1  | 0.7     | 0.8     | 0.8     | 0.8     | 0.8     |
+            | peak_2  | 0.9     | 1.0     | 1.0     | 1.0     | 1.0     |
+            
+        - metrics_values (pd.DataFrame): 
+            DataFrame containing metrics values for a set of models. The DataFrame should have metrics as columns and models as rows.
+            Example of a metrics_values DataFrame:
+            |         | Metric1 | Metric2 | Metric3 | Metric4 | Metric5 |
+            |---------|---------|---------|---------|---------|---------|
+            | Model1  | 0.25    | 0.32    | 0.4     | 0.5     | 0.6     |
+            | Model2  | 0.37    | 0.43    | 0.5     | 0.6     | 0.7     |
+            | Model3  | 0.41    | 0.51    | 0.6     | 0.7     | 0.8     |
+            | Model4  | 0.58    | 0.64    | 0.71    | 0.8     | 0.9     |
+            | Model5  | 0.60    | 0.71    | 0.8     | 0.9     | 1.0     |
+            
         Returns:
-        - self: Fitted estimator.
+        - self (TrustworthinessEstimator): Fitted estimator.
         """
-        self.thresholds_ = {col: self._fuzzy_triangle_peaks(X, col) for col in X.columns}
+        if metrics_values is None and fuzzy_functions_thresholds is None and metric_list is None:
+            raise ValueError("You must provide one of fuzzy_functions_thresholds or metrics_values or metric_list.")
+        
+
+        if fuzzy_functions_thresholds is not None:
+            self.thresholds_ = fuzzy_functions_thresholds
+        elif metric_list is not None:
+            self.thresholds_ = { metric.name: get_metric_thresholds(metric.name) for metric in metric_list }
+        else:
+            self.thresholds_ = { col: self._compute_metric_thresholds(metrics_values, col) for col in metrics_values.columns }
+
+        print("--------------------------------------------------------------------------------------------------------")
+        print(f"\nFitting complete. Thresholds for each metric:\n{self.thresholds_}\n")
+        print("--------------------------------------------------------------------------------------------------------")
+
         if self.verbose:
             print(f"\nFitting complete. Thresholds for each metric:\n{self.thresholds_}\n")
         return self
 
-    def _fuzzy_triangle_peaks(self, df, column):
+    def _compute_metric_thresholds(self, metrics_values: pd.DataFrame, column: str):
         """
         Define fuzzy triangle peaks based on quantiles for each metric.
 
@@ -100,11 +86,11 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         - thresholds (dict): Dictionary of threshold values.
         """
         thresholds = {
-            "peak_-2": df[column].min(),
-            "peak_-1": df[column].quantile(0.25),
-            "peak_0" : df[column].quantile(0.50),
-            "peak_1" : df[column].quantile(0.75),
-            "peak_2" : df[column].max()
+            FUZZY_THRESHOLD_PEAKS[0]: metrics_values[column].min(),
+            FUZZY_THRESHOLD_PEAKS[1]: metrics_values[column].quantile(0.25),
+            FUZZY_THRESHOLD_PEAKS[2] : metrics_values[column].quantile(0.50),
+            FUZZY_THRESHOLD_PEAKS[3] : metrics_values[column].quantile(0.75),
+            FUZZY_THRESHOLD_PEAKS[4] : metrics_values[column].max()
         }
         return thresholds
 
@@ -147,11 +133,11 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         - S (float): Weighted sum of linguistic values.
         """
         membership_values = [
-            self._triangular_membership(value, thresholds["peak_-2"] - (thresholds["peak_-1"] - thresholds["peak_-2"]), thresholds["peak_-2"], thresholds["peak_-1"]),
-            self._triangular_membership(value, thresholds["peak_-2"], thresholds["peak_-1"], thresholds["peak_0"]),
-            self._triangular_membership(value, thresholds["peak_-1"], thresholds["peak_0"], thresholds["peak_1"]),
-            self._triangular_membership(value, thresholds["peak_0"], thresholds["peak_1"], thresholds["peak_2"]),
-            self._triangular_membership(value, thresholds["peak_1"], thresholds["peak_2"], thresholds["peak_2"] + (thresholds["peak_2"] - thresholds["peak_1"]))
+            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[0]] - (thresholds[FUZZY_THRESHOLD_PEAKS[1]] - thresholds[FUZZY_THRESHOLD_PEAKS[0]]), thresholds[FUZZY_THRESHOLD_PEAKS[0]], thresholds[FUZZY_THRESHOLD_PEAKS[1]]),
+            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[0]], thresholds[FUZZY_THRESHOLD_PEAKS[1]], thresholds[FUZZY_THRESHOLD_PEAKS[2]]),
+            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[1]], thresholds[FUZZY_THRESHOLD_PEAKS[2]], thresholds[FUZZY_THRESHOLD_PEAKS[3]]),
+            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[2]], thresholds[FUZZY_THRESHOLD_PEAKS[3]], thresholds[FUZZY_THRESHOLD_PEAKS[4]]),
+            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[3]], thresholds[FUZZY_THRESHOLD_PEAKS[4]], thresholds[FUZZY_THRESHOLD_PEAKS[4]] + (thresholds[FUZZY_THRESHOLD_PEAKS[4]] - thresholds[FUZZY_THRESHOLD_PEAKS[3]]))
         ]
         S = sum([a * b for a, b in zip(LINGUISTIC_VALUES, membership_values)])
         max_index = np.argmax(membership_values)
@@ -200,7 +186,35 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
                 print(f"      Final trustworthiness score for metrics at index {index}: {final_score}\n")
 
         s_values[TRUSTWORTHINESS_SCORE_NAME] = trustworthiness_scores
+        
         return s_values    
+
+    def compute_metric(self, metrics: MetricList):
+        """
+        Computes trustworthiness score.
+
+        Parameters:
+        - metrics (MetricList): List of metrics .
+
+        Returns:
+        - result float: Trustworthiness score.
+        """
+        self.trustworthiness_score = 0
+
+        for metric in metrics.get_metrics():
+            thresholds = pd.Series(get_metric_thresholds(metric.name), index=FUZZY_THRESHOLD_PEAKS)
+            _, S = self._assign_linguistic_label(metric.value, thresholds)
+            weighted_value = S * metric.weight
+            self.trustworthiness_score += weighted_value
+
+            #if self.verbose:
+            print(f"Metric: {metric.name}, Value: {metric.value}")
+            print(f"Thresholds:\n{thresholds}")
+            print(f"Linguistic value = {S}, Weight = {metric.weight}")
+            print(f"Weighted contribution to trustworthiness score = {weighted_value}\n")
+
+        print(f"Final Trustworthiness score = {self.trustworthiness_score}\n")
+        return self.trustworthiness_score
 
     def plot_results(self, s_values, title=None, save_path=None):
         """

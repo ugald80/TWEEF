@@ -6,16 +6,9 @@ from trustAI.Metrics import Metric
 
 class PerformanceEstimator(BaseEstimator, ClassifierMixin):
 
-    def __init__(self):
-        self.general_matrix_scores = None
-        self.score_accuracy = None
-        self.score_recall = None
-        self.score_precision = None
-        self.score_f1_score = None
-
-    def fit(self, y_true, y_pred):
+    def __init__(self, y_true, y_pred):
         """
-        Fit the estimator by calculating confusion matrix scores.
+        Create a PerformanceEstimator to compute confusion matrix scores.
 
         Parameters:
         y_true (array-like): Ground truth (correct) target values.
@@ -32,8 +25,7 @@ class PerformanceEstimator(BaseEstimator, ClassifierMixin):
         self.score_recall    = self.recall()
         self.score_precision = self.precision()
         self.score_f1_score  = self.f1_score()
-                
-        return self
+
 
     def accuracy(self):
         """Accuracy metric."""
@@ -73,11 +65,3 @@ class PerformanceEstimator(BaseEstimator, ClassifierMixin):
         else:
             raise ValueError("Invalid performance metric specified.")
         return performance_metric.value
-
-    # def score(self, X, y_true, y_pred):
-    #     """
-    #     Scikit-learn compatibility: Default scoring uses the specified performance metric.
-    #     """
-    #     self.fit(y_true, y_pred)
-    #     return self.performance(self.performance_metric)
-

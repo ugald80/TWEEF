@@ -37,40 +37,20 @@ class METRICS:
         RECALL    = "Recall"
         PRECISION = "Precision"
         F1_SCORE  = "F1Score"
-    
     class FAIRNESS:
         TREATMENT_EQUALITY = "Treatment Equality"
         EQUALIZED_ODDS     = "Equalized Odds"
         EQUAL_OPPORTUNITY  = "equal Opportunity"
         STATISTICAL_PARITY = "Statistical Parity"
-    
     class INTERPRETABILITY:
         MONOTONICITY         = "Monotonicity"
         NON_SENSITIVITY      = "Non Sensitivity"
         EFFECTIVE_COMPLEXITY = "Effective Complexity"
 
-
-# def get_metrics_of(metrics_class):
-#     """
-#     Recibe una clase de métricas y devuelve una lista con todas las métricas definidas en la clases.
-#     Puede ser una clase anidada o una clase de nivel superior (PERFORMANCE, FAIRNESS O INTERPRETABILITY).
-#     """
-#     print(f"metrics_class: {metrics_class}")
-#     metrics = []
-    
-    
-#     for category in vars(metrics_class).values():
-#         print(f"... category: {category}")
-#         if isinstance(category, type):  # Verifica si es una clase anidada
-#             metrics.extend(vars(category).values())
-#         else:
-#             print(f"... no es una clase anidada")
-#     return [metric for metric in metrics if isinstance(metric, str) and not metric.startswith("trustAI.Constants")]
-
 def get_metrics_of(metrics_class):
     """
-    Recibe una clase de métricas y devuelve una lista con todas las métricas definidas en la clase.
-    Puede ser una clase anidada o una clase de nivel superior (PERFORMANCE, FAIRNESS O INTERPRETABILITY).
+    Receives a metrics class and returns a list with all the metrics defined in the class.
+    It can be a nested class or a top-level class (PERFORMANCE, FAIRNESS, or INTERPRETABILITY).
     """
     metrics = []
     
@@ -82,3 +62,33 @@ def get_metrics_of(metrics_class):
                 metrics.append(attr_value)
 
     return metrics
+
+
+# Diccionario interno para asociar métricas con sus thresholds
+_THESHOLDS_MAP = {
+    METRICS.PERFORMANCE.ACCURACY:  [0.5, 0.6, 0.7, 0.8, 0.9],
+    METRICS.PERFORMANCE.RECALL:    [0.5, 0.6, 0.7, 0.8, 0.9],
+    METRICS.PERFORMANCE.PRECISION: [0.5, 0.6, 0.7, 0.8, 0.9],
+    METRICS.PERFORMANCE.F1_SCORE:  [0.5, 0.6, 0.7, 0.8, 0.9],
+
+    METRICS.FAIRNESS.TREATMENT_EQUALITY: [0.6, 0.7, 0.8, 0.9, 0.95],
+    METRICS.FAIRNESS.EQUALIZED_ODDS:     [0.6, 0.7, 0.8, 0.9, 0.95],
+    METRICS.FAIRNESS.EQUAL_OPPORTUNITY:  [0.6, 0.7, 0.8, 0.9, 0.95],
+    METRICS.FAIRNESS.STATISTICAL_PARITY: [0.6, 0.7, 0.8, 0.9, 0.95],
+
+    METRICS.INTERPRETABILITY.MONOTONICITY:         [0.3, 0.4, 0.5, 0.6, 0.7],
+    METRICS.INTERPRETABILITY.NON_SENSITIVITY:      [0.3, 0.4, 0.5, 0.6, 0.7],
+    METRICS.INTERPRETABILITY.EFFECTIVE_COMPLEXITY: [0.3, 0.4, 0.5, 0.6, 0.7],
+}
+FUZZY_THRESHOLD_PEAKS = ["peak_-2", "peak_-1", "peak_0", "peak_1", "peak_2"]
+
+
+def get_metric_thresholds(metric: str):
+    """
+    Devuelve los umbrales asociados a una métrica específica.
+
+    :param metric: Nombre de la métrica desde METRICS.
+    :return: Lista de thresholds o None si la métrica no existe.
+    """
+    return _THESHOLDS_MAP.get(metric, None)
+

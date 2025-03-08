@@ -114,7 +114,7 @@ class MetricList:
         """
         names = np.array(self.get_names()).reshape(-1, 1).flatten()
         values = np.array(self.get_values()).reshape(-1, 1)
-        metrics_matrix = pd.DataFrame(values, index=names, columns=[0]).T
+        metrics_matrix = pd.DataFrame(values, index=names).T
         return metrics_matrix
 
     def copy(self):
