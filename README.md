@@ -3,9 +3,9 @@ Trustworthiness Evaluation for Machine Learning Models
 
 ### Installation:
 Install trustAI by executing the following command:
-'''
+```
 pip install git+https://github.com/YOUR-USERNAME/my_library.git@v1.0.0
-'''
+```
 
 The installation needs the following dependencies: 
 
