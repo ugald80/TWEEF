@@ -275,7 +275,7 @@ class BiasMitigatorPostProcessing(BiasMitigator):
 
         self.relabeled_y      = pd.Series([relabeled_y_test.astype(float), relabeled_y_valid.astype(float)], index=y_test.index) #, ignore_index=True)
         self.equalized_odds = 0.5*np.abs(cm_transf_valid.difference(cm_transf_valid.generalized_false_negative_rate)) + 0.5*np.abs(cm_pred_valid.difference(cm_pred_valid.generalized_false_negative_rate))
-        print(f'      post-processing: relabeled_y {self.relabeled_y.shape}')
+        print(f"      Calibrating Equalized Odds = {self.equalized_odds}")
 
         # Testing: Check if the rates for validation data has gone down
         assert np.abs(cm_transf_valid.difference(cm_transf_valid.generalized_false_negative_rate)) < np.abs(cm_pred_valid.difference(cm_pred_valid.generalized_false_negative_rate))

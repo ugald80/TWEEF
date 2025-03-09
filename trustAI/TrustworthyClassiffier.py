@@ -64,8 +64,9 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         self.transformed_x_test = None
         self.transformed_y_train = None
         self.transformed_y_test = None
-        self.disparate_impact = None
+        self.fairness_processor_pre= None
         # Fairness: post-proccessing
+        self.fairness_processor_post = None
         self.relabeled_y_test = None
         # Explainability: surrogate explanaible model
         self.explainer = None
@@ -186,7 +187,7 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         print(
             "      . pre-processing fairness: apply remove_disparate_impact on original data"
         )
-        self.disparate_impact = mitigator.preprocess_disparate_impact_removal(
+        self.fairness_processor_pre= mitigator.preprocess_disparate_impact_removal(
             self.x_train,
             self.x_test,
             self.y_train,
@@ -202,7 +203,7 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         self.transformed_x_test = mitigator.transformed_x_test
         self.transformed_y_train = mitigator.transformed_y_train
         self.transformed_y_test = mitigator.transformed_y_test
-        self.disparate_impact = mitigator.disparate_impact
+        self.fairness_processor_pre= mitigator
 
     def __surrogate_model_train(self):
         """
@@ -237,6 +238,7 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
             self.protected_classes,
             # self.equalize_odds_class_thresh
         )
+        self.fairness_processor_post = mitigator
 
     def __fairness_validation(self):
         # self.y_predicted_ex must be computed from surogate model training.
@@ -362,19 +364,55 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         return self.explainer.explainable_classifier.predict(x)
 
     # #OUTPUTS =====================================================================
-    def trustworthiness_diagnosis(self):
-        report = self.metrics_pre.to_dataframe()
-        report["trustworthiness"] = self.trust_estimator_pre.trustworthiness_score
-        return report
-
-    def trustworthiness_metrics(self):
-        report = self.metrics_post.to_dataframe()
-        report["trustworthiness"] = self.trust_estimator_post.trustworthiness_score
-        return report
 
     def unbiased_dataset(self):
+        """
+        Returns the unbiased dataset after applying the pre-processing fairness algorithm.
+        """
         data = pd.concat([self.transformed_x_train, self.transformed_x_test])
         data[self.transformed_y_train.name] = pd.concat(
             [self.transformed_y_train, self.relabeled_y_test]
         )
         return data
+
+    def trustworthiness_diagnosis(self):
+        """
+        Returns the trustworthiness metrics for the given classifier
+        """
+        report = self.metrics_pre.to_dataframe()
+        report["trustworthiness"] = self.trust_estimator_pre.trustworthiness_score
+        return report
+
+    def trustworthiness_metrics(self):
+        """
+        Returns the final trustworthiness metrics for the trustworthy classifier
+        """
+        report = self.metrics_post.to_dataframe()
+        report["trustworthiness"] = self.trust_estimator_post.trustworthiness_score
+        return report
+
+    def tradeoff_fairness(self):
+        """
+        Returns the fairness metrics for the pre-processing and post-processing fairness algorithms.
+        """
+        return pd.DataFrame(
+            [{
+                "disparate_impact": self.fairness_processor_pre.disparate_impact,
+                "equalized_odds"  : self.fairness_processor_post.equalized_odds,
+            }]
+        )
+
+    def trust_cost_on_performance(self):
+        """
+        Returns the performance decrease caused by fairness mitigation and interpretable surrogate model, for each performance metric. Computed as:
+        cost_on_performance = (initial_performance − final_performance) / initial_performance
+        """
+        performance_metrics = []
+
+        for metric_pre, metric_post in zip(self.metrics_pre.metrics, self.metrics_post.metrics):
+            if metric_pre.name in get_metrics_of(METRICS.PERFORMANCE):
+                performance_metrics.append({
+                    "metric": metric_pre.name,
+                    "value": (metric_post.value - metric_pre.value)/metric_pre.value
+                })
+        return pd.DataFrame(performance_metrics)
