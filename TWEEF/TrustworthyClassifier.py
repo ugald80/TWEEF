@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from itertools import permutations
 from sklearn.base import BaseEstimator, ClassifierMixin, clone
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -548,10 +549,10 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
             < self.trust_estimator_pre.trustworthiness_score
         ):
             self.__retain_diagnosis_as_final()
-        self.diagnosis_ = self.trustworthiness_diagnosis()
-        self.final_report_ = self.trustworthiness_metrics()
-        self.tradeoffs_ = self.tradeoff_fairness()
         self.component_scores_ = self._component_scores()
+        self.diagnosis_ = self.trustworthiness_diagnosis()
+        self.final_report_ = self.component_scores_
+        self.tradeoffs_ = self.dimension_tradeoffs()
         self.trustworthiness_score_ = self.trust_estimator_post.trustworthiness_score
         self.is_fitted_ = True
         return self
@@ -655,6 +656,124 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
                         "goal": metric.goal,
                     }
                 )
+        return pd.DataFrame(rows)
+
+    @staticmethod
+    def _metric_dimension(metric_name):
+        if metric_name in get_metrics_of(METRICS.PERFORMANCE):
+            return "performance"
+        if metric_name in get_metrics_of(METRICS.FAIRNESS):
+            return "fairness"
+        return "interpretability"
+
+    def _dimension_scores(self, metrics):
+        rows = []
+        for metric in metrics.get_metrics():
+            rows.append(
+                {
+                    "dimension": self._metric_dimension(metric.name),
+                    "value": metric.value,
+                    "weight": metric.weight,
+                }
+            )
+        metric_frame = pd.DataFrame(rows)
+        scores = {}
+        for dimension, frame in metric_frame.groupby("dimension"):
+            values = frame["value"].astype(float)
+            weights = frame["weight"].astype(float)
+            weight_sum = weights.sum()
+            if weight_sum > 0:
+                scores[dimension] = float(np.average(values, weights=weights))
+            else:
+                scores[dimension] = float(values.mean())
+        return scores
+
+    @staticmethod
+    def _relative_change(initial, final):
+        if initial == 0:
+            return np.nan
+        return (final - initial) / abs(initial)
+
+    @staticmethod
+    def _relative_cost(initial, final):
+        if initial == 0:
+            return np.nan
+        return max(0.0, (initial - final) / abs(initial))
+
+    @staticmethod
+    def _variation_ratio(relative_delta, relative_delta_reference):
+        if relative_delta_reference == 0 or np.isnan(relative_delta_reference):
+            return np.nan
+        return relative_delta / abs(relative_delta_reference)
+
+    @staticmethod
+    def _tradeoff_label(delta_dimension, delta_reference):
+        if delta_dimension > 0 and delta_reference < 0:
+            return "gain-loss"
+        if delta_dimension < 0 and delta_reference > 0:
+            return "loss-gain"
+        if delta_dimension > 0 and delta_reference > 0:
+            return "joint-gain"
+        if delta_dimension < 0 and delta_reference < 0:
+            return "joint-loss"
+        return "neutral"
+
+    def dimension_tradeoffs(self):
+        """
+        Returns directional trade-offs between trust dimensions.
+
+        Dimension scores are weighted averages of the metrics belonging to each
+        dimension. Trade-off costs follow the same relative-decrease idea used by
+        price-of-fairness style analyses. Each row reads as: how `dimension`
+        changed with respect to `reference_dimension`.
+        """
+        check_is_fitted(self, "classifier_")
+        diagnosis_scores = self._dimension_scores(self.metrics_pre)
+        final_scores = self._dimension_scores(self.metrics_post)
+        dimension_order = ["performance", "fairness", "interpretability"]
+        dimensions = [
+            dimension
+            for dimension in dimension_order
+            if dimension in diagnosis_scores or dimension in final_scores
+        ]
+
+        rows = []
+        for dimension, reference_dimension in permutations(dimensions, 2):
+            diagnosis = diagnosis_scores.get(dimension, np.nan)
+            final = final_scores.get(dimension, np.nan)
+            reference_diagnosis = diagnosis_scores.get(reference_dimension, np.nan)
+            reference_final = final_scores.get(reference_dimension, np.nan)
+            delta = final - diagnosis
+            reference_delta = reference_final - reference_diagnosis
+            relative_delta = self._relative_change(diagnosis, final)
+            reference_relative_delta = self._relative_change(
+                reference_diagnosis,
+                reference_final,
+            )
+            rows.append(
+                {
+                    "tradeoff": f"{dimension}_vs_{reference_dimension}",
+                    "dimension": dimension,
+                    "diagnosis": diagnosis,
+                    "final": final,
+                    "delta": delta,
+                    "relative_delta": relative_delta,
+                    "reference_dimension": reference_dimension,
+                    "reference_diagnosis": reference_diagnosis,
+                    "reference_final": reference_final,
+                    "reference_delta": reference_delta,
+                    "reference_relative_delta": reference_relative_delta,
+                    "variation_ratio": self._variation_ratio(
+                        relative_delta,
+                        reference_relative_delta,
+                    ),
+                    "relative_cost": self._relative_cost(
+                        diagnosis,
+                        final,
+                    ),
+                    "relation": self._tradeoff_label(delta, reference_delta),
+                }
+            )
         return pd.DataFrame(rows)
 
     def tradeoff_fairness(self):

@@ -235,12 +235,10 @@ def run_experiment(config: ExperimentConfig, args):
         effective_complexity_repeats=args.effective_complexity_repeats,
     )
     classifier.fit(config.X, config.y)
-    print("\nDiagnosis")
-    print(classifier.diagnosis_.to_string(index=False))
-    print("\nFinal")
+    print("\nFinal summary")
     print(classifier.final_report_.to_string(index=False))
     print("\nTradeoffs")
-    print(classifier.component_scores_.to_string(index=False))
+    print(classifier.tradeoffs_.to_string(index=False))
     return classifier
 
 

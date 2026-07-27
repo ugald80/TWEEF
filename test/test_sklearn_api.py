@@ -17,6 +17,29 @@ def _metrics():
     return metrics
 
 
+def _three_dimension_metrics(performance, fairness, interpretability):
+    metrics = MetricList()
+    metrics.add_metric(
+        METRICS.PERFORMANCE.ACCURACY,
+        weight=1 / 3,
+        goal=0.8,
+        value=performance,
+    )
+    metrics.add_metric(
+        METRICS.FAIRNESS.STATISTICAL_PARITY,
+        weight=1 / 3,
+        goal=0.8,
+        value=fairness,
+    )
+    metrics.add_metric(
+        METRICS.INTERPRETABILITY.EFFECTIVE_COMPLEXITY,
+        weight=1 / 3,
+        goal=0.8,
+        value=interpretability,
+    )
+    return metrics
+
+
 def _classifier():
     return TrustworthyClassifier(
         given_classifier=DummyClassifier(strategy="most_frequent"),
@@ -61,3 +84,42 @@ def test_trustworthy_classifier_rejects_legacy_training_data_constructor_args():
             protected_classes=[1],
             metrics=_metrics(),
         )
+
+
+def test_dimension_tradeoffs_report_all_directional_dimension_pairs():
+    classifier = _classifier()
+    classifier.classifier_ = DummyClassifier()
+    classifier.metrics_pre = _three_dimension_metrics(
+        performance=0.9,
+        fairness=0.5,
+        interpretability=0.7,
+    )
+    classifier.metrics_post = _three_dimension_metrics(
+        performance=0.8,
+        fairness=0.75,
+        interpretability=0.6,
+    )
+
+    tradeoffs = classifier.dimension_tradeoffs()
+
+    assert tradeoffs["tradeoff"].tolist() == [
+        "performance_vs_fairness",
+        "performance_vs_interpretability",
+        "fairness_vs_performance",
+        "fairness_vs_interpretability",
+        "interpretability_vs_performance",
+        "interpretability_vs_fairness",
+    ]
+    performance_fairness = tradeoffs.loc[
+        tradeoffs["tradeoff"] == "performance_vs_fairness"
+    ].iloc[0]
+    assert performance_fairness["relation"] == "loss-gain"
+    assert performance_fairness["relative_cost"] == pytest.approx(
+        (0.9 - 0.8) / 0.9
+    )
+    assert performance_fairness["reference_relative_delta"] == pytest.approx(
+        (0.75 - 0.5) / 0.5
+    )
+    assert performance_fairness["variation_ratio"] == pytest.approx(
+        ((0.8 - 0.9) / 0.9) / abs((0.75 - 0.5) / 0.5)
+    )
