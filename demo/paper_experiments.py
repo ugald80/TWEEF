@@ -1,4 +1,8 @@
-"""Run the TWEEF experiments described in TWEEF.pdf.
+"""Run the TWEEF experiments described in the published paper:
+Ugalde, J., Salas, R., Torres, R., Velandia, D., Bariviera, A. F., Estevez, P. A.,
+& Godoy, M. P. (2026). TWEEF: Trustworthiness Estimation and Enhancement
+Framework for Machine Learning Models. *Applied Sciences*, *16*(2), 1077.
+https://www.mdpi.com/2076-3417/16/2/1077
 
 The paper evaluates three binary-classification datasets:
 
