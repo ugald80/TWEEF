@@ -7,6 +7,7 @@ configuring global handlers at import time. Applications and demos can call
 
 import logging
 import sys
+from typing import Union
 
 
 class TWEEFLogger:
@@ -25,7 +26,7 @@ class TWEEFLogger:
     @classmethod
     def configure(
         cls,
-        level: int | str = logging.INFO,
+        level: Union[int, str] = logging.INFO,
         stream=None,
         force: bool = False,
         quiet_third_party: bool = True,
