@@ -2,7 +2,6 @@ import logging
 import warnings
 from TWEEF.Logging import TWEEFLogger
 from TWEEF.Aggregation import TRUSTWORTHINESS_SCORE_SCALE
-from TWEEF.TrustworthyClassifier import TrustworthyClassifier
 # from sklearn.exceptions import ConvergenceWarning
 # warnings.filterwarnings("ignore", category=ConvergenceWarning)
 # warnings.filterwarnings("ignore", category=FutureWarning)
@@ -19,3 +18,11 @@ __all__ = [
     "TrustworthyClassifier",
     "TWEEFLogger",
 ]
+
+
+def __getattr__(name):
+    if name == "TrustworthyClassifier":
+        from TWEEF.TrustworthyClassifier import TrustworthyClassifier
+
+        return TrustworthyClassifier
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
