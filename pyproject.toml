@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tweef"
+version = "0.1.0"
+description = "A Machine Learning Library for Trustworthy AI model Generation and Evaluation"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "TWEEF contributors" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.23,<2.0",
+    "pandas",
+    "scikit-learn",
+    "scipy>=1.9,<1.14",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+fairness = [
+    "aif360",
+    "BlackBoxAuditing",
+]
+interpretability = [
+    "interpret",
+    "shap",
+]
+dev = [
+    "pytest",
+    "build",
+    "twine",
+]
+all = [
+    "aif360",
+    "BlackBoxAuditing",
+    "interpret",
+    "shap",
+]
+
+[tool.setuptools.packages.find]
+include = ["TWEEF*"]

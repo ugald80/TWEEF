@@ -101,7 +101,6 @@ class FairnessGroupUtils:
                 identified = x[x[key].isin(values)]
                 protected = pd.concat([protected, identified])
 
-        # print(f"       | protected indexes: {protected.index.tolist()}")
         y_protected   = y[y.index.isin(protected.index.tolist())]
         y_unprotected = y[~y.index.isin(protected.index.tolist())]
 

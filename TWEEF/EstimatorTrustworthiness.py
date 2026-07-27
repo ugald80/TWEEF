@@ -2,9 +2,19 @@
 from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from trustAI.Constants import LINGUISTIC_VALUES, LINGUISTIC_LABELS, TRUSTWORTHINESS_SCORE_NAME, FUZZY_THRESHOLD_PEAKS, get_metric_thresholds
-from trustAI.Metrics import MetricList
+from TWEEF.Constants import LINGUISTIC_VALUES, LINGUISTIC_LABELS, TRUSTWORTHINESS_SCORE_NAME, FUZZY_THRESHOLD_PEAKS, get_metric_thresholds
+from TWEEF.Metrics import MetricList
+from TWEEF.Aggregation import (
+    AGGREGATION,
+    TRUSTWORTHINESS_SCORE_SCALE,
+    TrustAggregator,
+    normalize_score_scale,
+)
+from TWEEF.Calibration import FuzzyCalibrator
+from TWEEF.Logging import get_logger
+
+
+logger = get_logger(__name__)
 
 class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
     """
@@ -12,7 +22,15 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
     It uses fuzzy logic to assign linguistic labels to metric values and calculates a trustworthiness score for each model.
     """
     
-    def __init__(self, verbose: bool=False):
+    def __init__(
+        self,
+        verbose: bool = False,
+        aggregation: str = AGGREGATION.LWA,
+        fuzzy_thresholds: pd.DataFrame = None,
+        metrics_values: pd.DataFrame = None,
+        alpha: float = 0.5,
+        trustworthiness_score_scale: str = TRUSTWORTHINESS_SCORE_SCALE.NORMALIZED,
+    ):
         """
         Initialize the TrustworthinessEstimator with weights for each metric.
 
@@ -23,6 +41,18 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         self.verbose = verbose
         self.thresholds_ = None
         self.trustworthiness_score = None
+        self.aggregation = aggregation
+        self.fuzzy_thresholds = fuzzy_thresholds
+        self.metrics_values = metrics_values
+        self.alpha = alpha
+        self.trustworthiness_score_scale = normalize_score_scale(
+            trustworthiness_score_scale
+        )
+        self.aggregation_result_ = None
+        self.calibrator_ = FuzzyCalibrator(
+            thresholds=fuzzy_thresholds,
+            metrics_values=metrics_values,
+        )
 
     def fit(self, fuzzy_functions_thresholds: pd.DataFrame = None, metrics_values: pd.DataFrame = None, metric_list: MetricList = None):
         """
@@ -62,16 +92,24 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         if fuzzy_functions_thresholds is not None:
             self.thresholds_ = fuzzy_functions_thresholds
         elif metric_list is not None:
-            self.thresholds_ = { metric.name: get_metric_thresholds(metric.name) for metric in metric_list }
+            self.thresholds_ = {
+                metric.name: pd.Series(
+                    get_metric_thresholds(metric.name),
+                    index=FUZZY_THRESHOLD_PEAKS,
+                    dtype=float,
+                )
+                for metric in metric_list.get_metrics()
+            }
+            self.weights = {
+                metric.name: metric.weight for metric in metric_list.get_metrics()
+            }
         else:
             self.thresholds_ = { col: self._compute_metric_thresholds(metrics_values, col) for col in metrics_values.columns }
-
-        print("--------------------------------------------------------------------------------------------------------")
-        print(f"\nFitting complete. Thresholds for each metric:\n{self.thresholds_}\n")
-        print("--------------------------------------------------------------------------------------------------------")
+            equal_weight = 1.0 / len(metrics_values.columns)
+            self.weights = {col: equal_weight for col in metrics_values.columns}
 
         if self.verbose:
-            print(f"\nFitting complete. Thresholds for each metric:\n{self.thresholds_}\n")
+            logger.debug("Fitting complete. Thresholds for each metric: %s", self.thresholds_)
         return self
 
     def _compute_metric_thresholds(self, metrics_values: pd.DataFrame, column: str):
@@ -117,7 +155,14 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
             result = 0
 
         if self.verbose:
-            print(f"Calculating membership for x = {x} with range ({delta_low}, {delta_peak}, {delta_high}) => result = {result}")
+            logger.debug(
+                "Membership for x=%s range=(%s, %s, %s): %s",
+                x,
+                delta_low,
+                delta_peak,
+                delta_high,
+                result,
+            )
         return result
 
     def _assign_linguistic_label(self, value, thresholds):
@@ -144,10 +189,15 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         linguistic_value = LINGUISTIC_VALUES[max_index]
 
         if self.verbose:
-            print(f"\nComputing linguistic variable S for value {value}")
-            print(f"Membership values: {membership_values}")
-            print(f"Linguistic values: {LINGUISTIC_VALUES}")
-            print(f"Weighted sum S = {S}, chosen label = {LINGUISTIC_LABELS[max_index]} ({linguistic_value})\n")
+            logger.debug("Compute linguistic variable for value %s", value)
+            logger.debug("Membership values: %s", membership_values)
+            logger.debug("Linguistic values: %s", LINGUISTIC_VALUES)
+            logger.debug(
+                "Weighted sum S=%s, chosen label=%s (%s)",
+                S,
+                LINGUISTIC_LABELS[max_index],
+                linguistic_value,
+            )
         return linguistic_value, S
 
     def transform(self, X):
@@ -166,26 +216,35 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         for index, row in X.iterrows():
             final_score = 0
             if self.verbose:
-                print(f"\nCalculating trustworthiness for model at index {index}")
+                logger.debug("Calculate trustworthiness for model at index %s", index)
 
             for col in X.columns:
                 thresholds = self.thresholds_[col]
                 _, S = self._assign_linguistic_label(row[col], thresholds)
                 s_values.at[index, col] = S
-                weighted_value = self.weights[col] * S if col in self.weights else S
+                weighted_value = self.weights.get(col, 1.0) * S
                 final_score += weighted_value
 
                 if self.verbose:
-                    print(f"Metric: {col}, Value: {row[col]}")
-                    print(f"Thresholds: {thresholds}")
-                    print(f"S = {S}, Weight = {self.weights[col]}")
-                    print(f"Weighted contribution to final score = {weighted_value}\n")
+                    logger.debug("Metric=%s value=%s", col, row[col])
+                    logger.debug("Thresholds: %s", thresholds)
+                    logger.debug("S=%s weight=%s", S, self.weights[col])
+                    logger.debug("Weighted contribution=%s", weighted_value)
 
             trustworthiness_scores.append(final_score)
             if self.verbose:
-                print(f"      Final trustworthiness score for metrics at index {index}: {final_score}\n")
+                logger.debug(
+                    "Final trustworthiness score for index %s: %s",
+                    index,
+                    final_score,
+                )
 
-        s_values[TRUSTWORTHINESS_SCORE_NAME] = trustworthiness_scores
+        if self.trustworthiness_score_scale == TRUSTWORTHINESS_SCORE_SCALE.LINGUISTIC:
+            s_values[TRUSTWORTHINESS_SCORE_NAME] = trustworthiness_scores
+        else:
+            s_values[TRUSTWORTHINESS_SCORE_NAME] = [
+                (score + 2.0) / 4.0 for score in trustworthiness_scores
+            ]
         
         return s_values    
 
@@ -199,21 +258,23 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         Returns:
         - result float: Trustworthiness score.
         """
-        self.trustworthiness_score = 0
+        aggregator = TrustAggregator(
+            operator=self.aggregation,
+            calibrator=self.calibrator_,
+            alpha=self.alpha,
+            score_scale=self.trustworthiness_score_scale,
+        )
+        self.aggregation_result_ = aggregator.aggregate(metrics)
+        self.trustworthiness_score = self.aggregation_result_.score
 
-        for metric in metrics.get_metrics():
-            thresholds = pd.Series(get_metric_thresholds(metric.name), index=FUZZY_THRESHOLD_PEAKS)
-            _, S = self._assign_linguistic_label(metric.value, thresholds)
-            weighted_value = S * metric.weight
-            self.trustworthiness_score += weighted_value
+        if self.verbose:
+            for metric in metrics.get_metrics():
+                thresholds = self.calibrator_.thresholds_for(metric.name)
+                logger.debug("Metric=%s value=%s", metric.name, metric.value)
+                logger.debug("Thresholds: %s", thresholds)
+                logger.debug("Weight=%s", metric.weight)
 
-            #if self.verbose:
-            print(f"Metric: {metric.name}, Value: {metric.value}")
-            print(f"Thresholds:\n{thresholds}")
-            print(f"Linguistic value = {S}, Weight = {metric.weight}")
-            print(f"Weighted contribution to trustworthiness score = {weighted_value}\n")
-
-        print(f"Final Trustworthiness score = {self.trustworthiness_score}\n")
+            logger.debug("Final trustworthiness score=%s", self.trustworthiness_score)
         return self.trustworthiness_score
 
     def plot_results(self, s_values, title=None, save_path=None):
@@ -225,6 +286,8 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         - title (str, optional): Title displayed at the top of the chart.
         - save_path (str, optional): File path to save the image. Supported formats include .png, .jpg, .pdf, .svg.
         """
+        import matplotlib.pyplot as plt
+
         # Define categories (exclude the 'Trustworthiness_Score' column)
         categories = list(s_values.columns[:-1])
         num_vars = len(categories)
@@ -259,7 +322,7 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         if save_path:
             plt.savefig(f"{save_path}.{file_format}", format=file_format, dpi=600, bbox_inches="tight")
             if self.verbose:
-                print(f"Combined chart saved to {save_path}.{file_format}")
+                logger.info("Chart saved to %s.%s", save_path, file_format)
 
         # Show plot
         plt.show()
@@ -272,6 +335,8 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         - s_values (pd.DataFrame): DataFrame containing the 'Trustworthiness_Score' column for each model.
         - save_path (str, optional): Path to save the chart image. Supported formats include .png, .jpg, .pdf, etc.
         """
+        import matplotlib.pyplot as plt
+
         # Extract the trustworthiness scores and model identifiers
         scores = s_values[TRUSTWORTHINESS_SCORE_NAME]
         models = s_values.index
@@ -295,9 +360,9 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         # Save plot if save_path is specified
         file_format = "jpg"
         if save_path:
-            plt.savefig(f"{save_path}.{format}", format=format, dpi=600, bbox_inches="tight")
+            plt.savefig(f"{save_path}.{file_format}", format=file_format, dpi=600, bbox_inches="tight")
             if self.verbose:
-                print(f"Combined chart saved to {save_path}.{file_format}")
+                logger.info("Chart saved to %s.%s", save_path, file_format)
 
         # Show plot
         plt.show()
@@ -312,6 +377,8 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         - title (str, optional): Title displayed at the top of the charts.
         - save_path (str, optional): File path to save the image. Supported formats include .png, .jpg, .pdf, .svg.
         """
+        import matplotlib.pyplot as plt
+
         categories = list(s_values.columns[:-1])  # Exclude 'Trustworthiness_Score'
         num_vars = len(categories)
         models = s_values.index
@@ -367,7 +434,7 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         if save_path:
             plt.savefig(f"{save_path}.{file_format}", format=file_format, dpi=600, bbox_inches="tight")
             if self.verbose:
-                print(f"Combined chart saved to {save_path}.{file_format}")
+                logger.info("Combined chart saved to %s.%s", save_path, file_format)
 
         # Show the plot
         plt.show()

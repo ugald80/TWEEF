@@ -123,12 +123,27 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+.python-version
 .venv
+.venv/
+.venv*/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+virtualenv/
+pip-wheel-metadata/
+pip-selfcheck.json
+
+# Python dependency/tool caches
+.pip/
+.ruff_cache/
+.uv-cache/
+uv.lock
+poetry.lock
+Pipfile.lock
 
 # Spyder project settings
 .spyderproject
@@ -153,6 +168,10 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Latex
+*.tex
+*.pdf
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

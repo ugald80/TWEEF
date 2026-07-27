@@ -1,20 +1,32 @@
 import pandas as pd
+import pytest
+from pathlib import Path
+import os
 
-from sklearn.model_selection import train_test_split
+pytest.importorskip("aif360")
+pytest.importorskip("interpret")
+
+if os.environ.get("TWEEF_RUN_INTEGRATION") != "1":
+    pytest.skip(
+        "TrustworthyClassifier integration demo is opt-in. "
+        "Set TWEEF_RUN_INTEGRATION=1 to run it.",
+        allow_module_level=True,
+    )
+
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.tree import DecisionTreeClassifier
 
-from trustAI.UtilsFairnessGroup import FairnessGroup
-from trustAI.Metrics import MetricList
-from trustAI.TrustworthyClassiffier import TrustworthyClassifier
-from trustAI.Constants import METRICS, get_metrics_of
+from TWEEF.UtilsFairnessGroup import FairnessGroup
+from TWEEF.Metrics import MetricList
+from TWEEF.TrustworthyClassifier import TrustworthyClassifier
+from TWEEF.Constants import METRICS, get_metrics_of
 
 print("")
 print("")
 print("__________________________________________________________")
 print("|                                                        |")
 print("|                                                        |")
-print("|                    Testing trustAI                     |")
+print("|                    Testing TWEEF                     |")
 print("|                                                        |")
 print("|________________________________________________________|")
 print("")
@@ -25,9 +37,11 @@ print("")
 
 print("1. Dataset")
 
+DATASETS_DIR = Path(__file__).resolve().parent / "datasets"
+
 # Import Data
 print("    Import Data")
-dataset_german = pd.read_csv("datasets/german.csv", sep=",")
+dataset_german = pd.read_csv(DATASETS_DIR / "german.csv", sep=",")
 # Prepare data
 print("    Prepare Data")
 label_name = "Credit Score"
@@ -111,9 +125,6 @@ print("    Scale data")
 scaler = MinMaxScaler()
 X_scaled = scaler.fit_transform(X)
 X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=X.columns, index=X.index)
-x_train, x_test, y_train, y_test = train_test_split(
-    X_scaled, Y, test_size=0.3, stratify=Y, random_state=0
-)
 
 print("")
 print("2. A classifier model")
@@ -145,22 +156,20 @@ print("\nExample: train a trustworthy classifier from a Decision Tree model\n")
 
 print("Create a TrustworthyClassifier instance")
 trustworthy_classifier = TrustworthyClassifier(
-    DesicionTree,
-    x_train,
-    x_test,
-    y_train,
-    y_test,
-    protectedGroups,
-    unprotectedGroups,
-    protectedClasses,
-    metrics,
+    given_classifier=DesicionTree,
+    protected_groups=protectedGroups,
+    unprotected_groups=unprotectedGroups,
+    protected_classes=protectedClasses,
+    metrics=metrics,
+    test_size=0.3,
+    random_state=0,
 )
 
 print("\nTrain the TrustworthyClassifier instance:")
-trustworthy_classifier.fit()
+trustworthy_classifier.fit(X_scaled, Y)
 
 print("\nThe TrustworthyClassifier is trained and ready to be used!!")
-trustworthy_predictions = trustworthy_classifier.predict(x_test)
+trustworthy_predictions = trustworthy_classifier.predict(trustworthy_classifier.x_test)
 
 print("\nThe TrustworthyClassifier offer some usefull outputs:")
 
@@ -189,4 +198,4 @@ print("         - 'value': The value of each metric.")
 tw_metrics = trustworthy_classifier.trustworthiness_metrics()
 print(f"\n      For this example, the Decision Tree evaluation is:\n{tw_metrics}")
 
-print("\nEnd of testing trustAI\n")
+print("\nEnd of testing TWEEF\n")

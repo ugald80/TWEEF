@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from trustAI.Constants import METRICS, get_metrics_of
+from TWEEF.Constants import METRICS, get_metrics_of
 
 class Metric:
     def __init__(self, name: str, weight: float, goal: float=0, value: float=None):
@@ -107,6 +107,30 @@ class MetricList:
         Retrieves the values of all metrics.
         """
         return [metric.value for metric in self.metrics]
+
+    def normalize_weights(self):
+        """
+        Normalizes metric weights in place so they sum to one.
+        """
+        total = sum(self.get_weights())
+        if total == 0:
+            raise ValueError("metric weights cannot all be zero")
+        for metric in self.metrics:
+            metric.weight = metric.weight / total
+        return self
+
+    def as_dict(self):
+        """
+        Converts the metrics to a dictionary keyed by metric name.
+        """
+        return {
+            metric.name: {
+                "weight": metric.weight,
+                "goal": metric.goal,
+                "value": metric.value,
+            }
+            for metric in self.metrics
+        }
         
     def to_dataframe(self):
         """

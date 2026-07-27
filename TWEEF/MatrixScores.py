@@ -80,7 +80,7 @@ class MatrixScores(BaseEstimator, ClassifierMixin):
             raise ValueError("Input arrays must not be empty.")
 
         # Compute confusion matrix
-        tn, fp, fn, tp = metrics.confusion_matrix(y_true, y_pred).ravel()
+        tn, fp, fn, tp = metrics.confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
         self.tn = tn
         self.fp = fp
         self.fn = fn
@@ -120,6 +120,17 @@ class MatrixScores(BaseEstimator, ClassifierMixin):
         """
         return self.fp / (self.fp + self.tn) if (self.fp + self.tn) != 0 else 0
 
+    def tnr(self):
+        """
+        True negative rate (specificity).
+
+        Returns:
+        -------
+        float
+            The specificity score.
+        """
+        return self.tn / (self.tn + self.fp) if (self.tn + self.fp) != 0 else 0
+
     def fnr(self):
         """
         False negative rate.
@@ -155,6 +166,17 @@ class MatrixScores(BaseEstimator, ClassifierMixin):
         total = self.tp + self.tn + self.fp + self.fn
         return (self.tp + self.tn) / total if total != 0 else 0
 
+    def npv(self):
+        """
+        Negative predictive value.
+
+        Returns:
+        -------
+        float
+            The negative predictive value score.
+        """
+        return self.tn / (self.tn + self.fn) if (self.tn + self.fn) != 0 else 0
+
     def te_q(self):
         """
         Trade-off Equality (TEq).
@@ -187,4 +209,3 @@ class MatrixScores(BaseEstimator, ClassifierMixin):
             The accuracy score.
         """
         return self.acc()
-
