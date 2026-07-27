@@ -5,9 +5,13 @@ from sklearn.linear_model import LogisticRegression
 from aif360.algorithms.postprocessing import CalibratedEqOddsPostprocessing
 from aif360.metrics import ClassificationMetric
 
-from trustAI import UtilsFairnessGroup
-from trustAI.ProcessorFairness import BiasMitigator
-from trustAI.UtilsFairnessGroup import FairnessGroupUtils, FairnessGroup
+from TWEEF import UtilsFairnessGroup
+from TWEEF.ProcessorFairness import BiasMitigator
+from TWEEF.UtilsFairnessGroup import FairnessGroupUtils, FairnessGroup
+from TWEEF.Logging import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class BiasMitigatorPostProcessing(BiasMitigator):
@@ -50,11 +54,13 @@ class BiasMitigatorPostProcessing(BiasMitigator):
         X_train: np.ndarray,
         X_test: np.ndarray,
         y_train: np.ndarray,
-        y_test: np.ndarray,
+        y_true: np.ndarray,
+        y_pred: np.ndarray,
         label_name: str,
         protectedGroups: UtilsFairnessGroup,
         unprotectedGroups: UtilsFairnessGroup,
-        protectedClasses: list
+        protectedClasses: list,
+        prediction_scores=None,
     ):
         """
         Apply postprocessing with Equalized Odds to mitigate bias.
@@ -63,7 +69,8 @@ class BiasMitigatorPostProcessing(BiasMitigator):
         x_train (NDArray): Training feature data.
         X_test (NDArray): Testing feature data.
         y_train (NDArray): Training labels.
-        y_test (NDArray): Testing labels.
+        y_true (NDArray): Ground-truth testing labels.
+        y_pred (NDArray): Predicted testing labels to postprocess.
         label_name (str): Name of the label column.
         protectedGroups (FairnessGroup): Protected groups.
         unprotectedGroups (FairnessGroup): Unprotected groups.
@@ -74,67 +81,57 @@ class BiasMitigatorPostProcessing(BiasMitigator):
         Series: Transformed labels.
         """
         
-        print("      Postprocessing: Setting up datasets and applying equalized odds...")
+        logger.info("Set up datasets for equalized odds postprocessing")
         protected_keys, protected_values = self.group_utils.unparse_groups(protectedGroups)
+        y_true = pd.Series(y_true, index=X_test.index, name=label_name).astype(float)
+        y_pred = pd.Series(y_pred, index=X_test.index, name=label_name).astype(float)
 
-        aif_dataset_train = self.generate_aif360(X_train, y_train, label_name, protected_keys, protected_values, protectedClasses)
-        aif_dataset_test  = self.generate_aif360(X_test , y_test , label_name, protected_keys, protected_values, protectedClasses)
+        aif_dataset_test_true = self.generate_aif360(X_test, y_true, label_name, protected_keys, protected_values, protectedClasses)
+        aif_dataset_test_pred = self.generate_aif360(X_test, y_pred, label_name, protected_keys, protected_values, protectedClasses)
+
+        if prediction_scores is None:
+            scores = y_pred.to_numpy(dtype=float)
+        else:
+            scores = np.asarray(prediction_scores, dtype=float).reshape(-1)
+        aif_dataset_test_pred.scores = scores.reshape(-1, 1)
 
         # Split dataset for training and validation
-        dataset_orig_test, dataset_orig_valid = aif_dataset_test.split([0.5], shuffle=False)
-
-        # Scale features
-        scaler = StandardScaler()
-        x_train_scaled = scaler.fit_transform(aif_dataset_train.features)
-        X_valid_scaled = scaler.transform(dataset_orig_valid.features)
-        X_test_scaled  = scaler.transform(dataset_orig_test.features)
-
-        # Train logistic regression
-        print("      Postprocessing: Training logistic regression model...")
-        lmod = LogisticRegression(class_weight="balanced", solver="liblinear")
-        lmod.fit(x_train_scaled, aif_dataset_train.labels.ravel())
-
-        fav_idx = np.where(lmod.classes_ == aif_dataset_train.favorable_label)[0][0]
-        # y_train_pred_prob = lmod.predict_proba(x_train_scaled)[:, fav_idx]
-        y_valid_pred_prob = lmod.predict_proba(X_valid_scaled)[:, fav_idx]
-        y_test_pred_prob = lmod.predict_proba(X_test_scaled)[:, fav_idx]
-
-        # Assign probabilities to datasets
-        dataset_orig_valid.scores = y_valid_pred_prob.reshape(-1, 1)
-        dataset_orig_test.scores = y_test_pred_prob.reshape(-1, 1)
+        dataset_orig_test, dataset_orig_valid = aif_dataset_test_true.split([0.5], shuffle=False)
+        dataset_pred_test, dataset_pred_valid = aif_dataset_test_pred.split([0.5], shuffle=False)
 
         # Equalized Odds Postprocessing
-        print("      Postprocessing: Learning parameters to equalize odds...")
+        logger.info("Learn equalized odds postprocessing parameters")
         cpp = CalibratedEqOddsPostprocessing(
             privileged_groups=protectedGroups,
             unprivileged_groups=unprotectedGroups,
             cost_constraint=self.cost_constraint,
         )
-        cpp.fit(dataset_orig_valid, dataset_orig_valid.copy(deepcopy=True))
-        dataset_transf_test_pred = cpp.predict(dataset_orig_test.copy(deepcopy=True))
-        dataset_transf_valid_pred = cpp.predict(dataset_orig_valid.copy(deepcopy=True))
+        cpp.fit(dataset_orig_valid, dataset_pred_valid)
+        dataset_transf_test_pred = cpp.predict(dataset_pred_test)
+        dataset_transf_valid_pred = cpp.predict(dataset_pred_valid)
         
         # Metrics and Equalized Odds calculation
-        print("      Postprocessing: Calculating metrics and Equalized Odds...")
+        logger.info("Calculate postprocessing metrics and equalized odds")
         cm_transf_test = ClassificationMetric(
             dataset_orig_test,
             dataset_transf_test_pred,
             unprotectedGroups,
             protectedGroups,
         )
-        # print(f"      Postprocessing: dataset_transf_test_pred: {dataset_transf_test_pred.labels.ravel()}")
-        # print(f"      Postprocessing: dataset_transf_valid_pred: {dataset_transf_valid_pred.labels.ravel()}")
-        array = np.concatenate((dataset_transf_test_pred.labels.ravel(), dataset_transf_valid_pred.labels.ravel()))
-        # print(f"      Postprocessing: array: {array}")
+        array = np.concatenate(
+            (
+                dataset_transf_test_pred.labels.ravel(),
+                dataset_transf_valid_pred.labels.ravel(),
+            )
+        )
         self.relabeled_y = pd.Series(
-            #dataset_transf_test_pred.labels.ravel().extend(dataset_transf_valid_pred.labels.ravel()),
-            array.astype(int),
+            array.astype(float),
             name=label_name,
-            index=y_test.index
+            index=y_true.index
         )
         self.equalized_odds = cm_transf_test.generalized_false_negative_rate()
 
-        print(f"      Calibrating Equalized Odds = {self.equalized_odds}")
+        logger.info("Calibrated equalized odds value: %s", self.equalized_odds)
         return self.relabeled_y
 
 
@@ -199,7 +196,7 @@ class BiasMitigatorPostProcessing(BiasMitigator):
         dataset_orig_vt    = aif_dataset_test
 
         # Learn parameters to equalize odds and apply to create a new dataset
-        print('      post-processing: learn parameters to equalize odds')
+        logger.info("Learn equalized odds postprocessing parameters")
         cpp = CalibratedEqOddsPostprocessing(privileged_groups = privileged_groups,
                                             unprivileged_groups = unprivileged_groups,
                                             cost_constraint=self.cost_constraint
@@ -216,7 +213,7 @@ class BiasMitigatorPostProcessing(BiasMitigator):
         # dataset_new_test_pred = dataset_orig_test.copy(deepcopy=True)
 
         # Logistic regression classifier and predictions for training data
-        print('      post-processing: train a logistic regression')
+        logger.info("Train logistic regression model")
         scale_orig = StandardScaler()
         x_train = scale_orig.fit_transform(dataset_orig_train.features)
         y_train = dataset_orig_train.labels.ravel()
@@ -258,24 +255,24 @@ class BiasMitigatorPostProcessing(BiasMitigator):
         #cm_pred_test = ClassificationMetric(dataset_orig_test, dataset_orig_test_pred, unprivileged_groups=unprivileged_groups, privileged_groups=privileged_groups)
 
         # Perform eq odds
-        print('      post-processing: applying equalization of odds')
+        logger.info("Apply equalized odds")
         cpp = cpp.fit(dataset_orig_valid, dataset_orig_valid_pred)
         dataset_transf_test_pred  = cpp.predict(dataset_orig_test_pred)
         dataset_transf_valid_pred = cpp.predict(dataset_orig_valid, dataset_orig_valid_pred)
 
-        print('      post-processing: obtaining metrics')
+        logger.info("Obtain postprocessing metrics")
         #Metrics after eq odds
         cm_transf_valid = ClassificationMetric(dataset_orig_valid, dataset_transf_valid_pred, unprivileged_groups=unprivileged_groups, privileged_groups=privileged_groups)
         #cm_transf_test = ClassificationMetric(dataset_orig_test, dataset_transf_test_pred, unprivileged_groups=unprivileged_groups, privileged_groups=privileged_groups)
 
-        print('      post-processing: store results')
+        logger.info("Store postprocessing results")
         # save results
         relabeled_y_test      = pd.Series(dataset_transf_test_pred.labels , name=label_name)
         relabeled_y_valid     = pd.Series(dataset_transf_valid_pred.labels, name=label_name)
 
         self.relabeled_y      = pd.Series([relabeled_y_test.astype(float), relabeled_y_valid.astype(float)], index=y_test.index) #, ignore_index=True)
         self.equalized_odds = 0.5*np.abs(cm_transf_valid.difference(cm_transf_valid.generalized_false_negative_rate)) + 0.5*np.abs(cm_pred_valid.difference(cm_pred_valid.generalized_false_negative_rate))
-        print(f"      Calibrating Equalized Odds = {self.equalized_odds}")
+        logger.info("Calibrated equalized odds value: %s", self.equalized_odds)
 
         # Testing: Check if the rates for validation data has gone down
         assert np.abs(cm_transf_valid.difference(cm_transf_valid.generalized_false_negative_rate)) < np.abs(cm_pred_valid.difference(cm_pred_valid.generalized_false_negative_rate))

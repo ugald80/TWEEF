@@ -34,12 +34,12 @@ class BiasMitigator:
             raise ValueError("y must be a pandas Series or numpy array.")
 
         df = pd.DataFrame(x.copy()) if isinstance(x, np.ndarray) else x.copy()
-        df[label_name] = y.copy()
+        df[label_name] = np.asarray(y.copy(), dtype=float)
         
         return StandardDataset(
             df,
             label_name=label_name,
-            favorable_classes=protected_classes,
+            favorable_classes=lambda value: value in protected_classes,
             protected_attribute_names=protected_keys,
             privileged_classes=protected_values,
         )

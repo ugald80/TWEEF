@@ -1,7 +1,17 @@
 from numpy import ndarray as NDArray
-from trustAI.MatrixScores import MatrixScores
-from trustAI.Constants import METRICS
-from trustAI.Metrics import Metric
+from TWEEF.MatrixScores import MatrixScores
+from TWEEF.Constants import METRICS
+from TWEEF.Metrics import Metric
+
+
+def _safe_ratio(numerator, denominator):
+    if denominator == 0:
+        return 0 if numerator == 0 else float("inf")
+    return numerator / denominator
+
+
+def _bounded_fairness_score(disparity):
+    return max(0, 1 - abs(disparity))
 
 
 class FairnessEstimator():
@@ -65,12 +75,22 @@ class FairnessEstimator():
         self.protected_matrix_scores.fit(protected_y_test, protected_y_predict)
         self.unprotected_matrix_scores.fit(unprotected_y_test, unprotected_y_predict)
         
-        self.score_statistical_parity        = 1 - abs( self.statistical_parity() )
-        self.score_treatment_equality        = 1 - abs( self.treatment_equality() )
-        self.score_equal_opportunity         = 1 - abs( self.equal_opportunity() )
-        self.score_equalized_odds            = 1 - abs( self.equalized_odds() )
-        self.score_predictive_parity         = 1 - abs( self.predictive_parity() )
-        self.score_overall_accuracy_equality = 1 - abs( self.overall_accuracy_equality())
+        self.score_statistical_parity = _bounded_fairness_score(
+            self.statistical_parity()
+        )
+        self.score_treatment_equality = _bounded_fairness_score(
+            self.treatment_equality()
+        )
+        self.score_equal_opportunity = _bounded_fairness_score(
+            self.equal_opportunity()
+        )
+        self.score_equalized_odds = max(0, 1 - self.equalized_odds())
+        self.score_predictive_parity = _bounded_fairness_score(
+            self.predictive_parity()
+        )
+        self.score_overall_accuracy_equality = _bounded_fairness_score(
+            self.overall_accuracy_equality()
+        )
         
 
     def overall_accuracy_equality(self):
@@ -101,17 +121,18 @@ class FairnessEstimator():
         Returns:
         --------
         float
-            The treatment equality metric, which is the minimum of the absolute difference in false positive rates and false negative rates between the protected and unprotected groups, capped at 1.
-            P(ˆY=1|A=0, Y=y) = P(ˆY=1|A=1, Y=y), y ∈{0,1}
+            Difference between the false-positive to false-negative ratios
+            of the protected and unprotected groups.
         """
-        te = 1
-        if (self.protected_matrix_scores.fn + self.unprotected_matrix_scores.fn) > (self.protected_matrix_scores.fp + self.unprotected_matrix_scores.fp) and (self.protected_matrix_scores.fn > 0) and ( self.unprotected_matrix_scores.fn > 0):
-            # print(f"1.  {self.protected_matrix_scores.fp} / {self.protected_matrix_scores.fn} - {self.unprotected_matrix_scores.fp} / {self.unprotected_matrix_scores.fn}")
-            te = (self.protected_matrix_scores.fp / self.protected_matrix_scores.fn) - (self.unprotected_matrix_scores.fp / self.unprotected_matrix_scores.fn)
-        elif  (self.protected_matrix_scores.fp > 0) and ( self.unprotected_matrix_scores.fp > 0):
-            # print(f"2.  {self.protected_matrix_scores.fn} / {self.protected_matrix_scores.fp} - {self.unprotected_matrix_scores.fn} / {self.unprotected_matrix_scores.fp}")
-            te = (self.protected_matrix_scores.fn / self.protected_matrix_scores.fp) - (self.unprotected_matrix_scores.fn / self.unprotected_matrix_scores.fp)
-        return min([abs(te),1])
+        protected_ratio = _safe_ratio(
+            self.protected_matrix_scores.fp,
+            self.protected_matrix_scores.fn,
+        )
+        unprotected_ratio = _safe_ratio(
+            self.unprotected_matrix_scores.fp,
+            self.unprotected_matrix_scores.fn,
+        )
+        return protected_ratio - unprotected_ratio
 
     def equal_opportunity(self):
         """
@@ -119,10 +140,9 @@ class FairnessEstimator():
         Returns:
         --------
         float
-            The difference in false negative rates between the protected and unprotected groups.
-            P(ˆY=1|A=0, Y=1) = P(ˆY=1|A=1, Y=1)
+            The difference in true positive rates between the protected and unprotected groups.
         """
-        return self.protected_matrix_scores.fnr() - self.unprotected_matrix_scores.fnr()
+        return self.protected_matrix_scores.tpr() - self.unprotected_matrix_scores.tpr()
 
     def equalized_odds(self):
         """
@@ -130,10 +150,17 @@ class FairnessEstimator():
         Returns:
         --------
         float
-            The difference in false positive rates between the protected and unprotected groups.
-            P(𝑌ˆ = 1|A = a,𝑌 = 𝑦) = P(𝑌ˆ = 1|A = a′,𝑌 = 𝑦)  ∀a,a′ ∈ A, 𝑦∈{0,1}
+            Sum of absolute differences in true positive rates and false positive rates.
         """
-        return self.protected_matrix_scores.fpr() - self.unprotected_matrix_scores.fpr()
+        tpr_difference = abs(
+            self.protected_matrix_scores.tpr()
+            - self.unprotected_matrix_scores.tpr()
+        )
+        fpr_difference = abs(
+            self.protected_matrix_scores.fpr()
+            - self.unprotected_matrix_scores.fpr()
+        )
+        return tpr_difference + fpr_difference
 
     def predictive_parity(self):
         """

@@ -1,5 +1,5 @@
 """
-Constants for TrustAI module.
+Constants for TWEEF module.
 
 This module defines various constants used for performance metrics, fairness metrics,
 interpretability metrics, linguistic values and labels, and other configurations.
@@ -37,6 +37,8 @@ class METRICS:
         RECALL    = "Recall"
         PRECISION = "Precision"
         F1_SCORE  = "F1Score"
+        SPECIFICITY = "Specificity"
+        NPV = "Negative Predictive Value"
     class FAIRNESS:
         TREATMENT_EQUALITY = "Treatment Equality"
         EQUALIZED_ODDS     = "Equalized Odds"
@@ -70,6 +72,8 @@ _THESHOLDS_MAP = {
     METRICS.PERFORMANCE.RECALL:    [0.5, 0.6, 0.7, 0.8, 0.9],
     METRICS.PERFORMANCE.PRECISION: [0.5, 0.6, 0.7, 0.8, 0.9],
     METRICS.PERFORMANCE.F1_SCORE:  [0.5, 0.6, 0.7, 0.8, 0.9],
+    METRICS.PERFORMANCE.SPECIFICITY: [0.5, 0.6, 0.7, 0.8, 0.9],
+    METRICS.PERFORMANCE.NPV: [0.5, 0.6, 0.7, 0.8, 0.9],
 
     METRICS.FAIRNESS.TREATMENT_EQUALITY: [0.6, 0.7, 0.8, 0.9, 0.95],
     METRICS.FAIRNESS.EQUALIZED_ODDS:     [0.6, 0.7, 0.8, 0.9, 0.95],
@@ -91,4 +95,3 @@ def get_metric_thresholds(metric: str):
     :return: Lista de thresholds o None si la métrica no existe.
     """
     return _THESHOLDS_MAP.get(metric, None)
-

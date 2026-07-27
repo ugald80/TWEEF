@@ -1,7 +1,7 @@
 from sklearn.base import BaseEstimator, ClassifierMixin
-from trustAI.MatrixScores import MatrixScores
-from trustAI.Constants import METRICS
-from trustAI.Metrics import Metric
+from TWEEF.MatrixScores import MatrixScores
+from TWEEF.Constants import METRICS
+from TWEEF.Metrics import Metric
 
 
 class PerformanceEstimator(BaseEstimator, ClassifierMixin):
@@ -25,6 +25,8 @@ class PerformanceEstimator(BaseEstimator, ClassifierMixin):
         self.score_recall    = self.recall()
         self.score_precision = self.precision()
         self.score_f1_score  = self.f1_score()
+        self.score_specificity = self.specificity()
+        self.score_npv = self.negative_predictive_value()
 
 
     def accuracy(self):
@@ -45,6 +47,14 @@ class PerformanceEstimator(BaseEstimator, ClassifierMixin):
         r = self.recall()
         return 2 * ((p * r) / (p + r)) if (p + r) != 0 else 0
 
+    def specificity(self):
+        """Specificity metric."""
+        return self.general_matrix_scores.tnr()
+
+    def negative_predictive_value(self):
+        """Negative predictive value metric."""
+        return self.general_matrix_scores.npv()
+
     def compute_metric(self, performance_metric: Metric):
         """
         Get the specified performance metric.
@@ -62,6 +72,10 @@ class PerformanceEstimator(BaseEstimator, ClassifierMixin):
             performance_metric.value = self.score_precision
         elif performance_metric.name == METRICS.PERFORMANCE.F1_SCORE:
             performance_metric.value = self.score_f1_score
+        elif performance_metric.name == METRICS.PERFORMANCE.SPECIFICITY:
+            performance_metric.value = self.score_specificity
+        elif performance_metric.name == METRICS.PERFORMANCE.NPV:
+            performance_metric.value = self.score_npv
         else:
             raise ValueError("Invalid performance metric specified.")
         return performance_metric.value

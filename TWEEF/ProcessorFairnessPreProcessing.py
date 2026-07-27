@@ -4,9 +4,13 @@ from aif360.algorithms.preprocessing import DisparateImpactRemover
 from aif360.metrics import BinaryLabelDatasetMetric
 import pandas as pd
 import numpy as np
-from trustAI.ProcessorFairness import BiasMitigator
-from trustAI import UtilsFairnessGroup
-from trustAI.UtilsFairnessGroup import FairnessGroupUtils
+from TWEEF.ProcessorFairness import BiasMitigator
+from TWEEF import UtilsFairnessGroup
+from TWEEF.UtilsFairnessGroup import FairnessGroupUtils
+from TWEEF.Logging import get_logger
+
+
+logger = get_logger(__name__)
 
 
 
@@ -55,12 +59,10 @@ class BiasMitigatorPreProcessing(BiasMitigator):
         float: Disparate impact score after preprocessing.
         """
 
-        print("        . disparate_impact: setting up protected and unprotected groups in dataset")
+        logger.info("Set protected and unprotected groups in dataset")
         protectedKey, protectedValues = self.group_utils.unparse_groups(protected_groups)
-        # print(f"        . disparate_impact: protectedKey: {protectedKey}")
-        # print(f"        . disparate_impact: protectedValues: {protectedValues}")
  
-        print("        . disparate_impact: generating AIF360 datasets for training and testing")
+        logger.info("Generate AIF360 datasets for training and testing")
         aif_dataset_train = self.generate_aif360(
             X_train, y_train, label_name, protectedKey, protectedValues, protected_classes,
         )
@@ -96,12 +98,12 @@ class BiasMitigatorPreProcessing(BiasMitigator):
         test_repd_pred = test_repd.copy()
         test_repd_pred.labels = lmod.predict(X_test_trunc)
 
-        print( "        . disparate_impact: evaluate disparate impact")
+        logger.info("Evaluate disparate impact")
         cm = BinaryLabelDatasetMetric(
             test_repd_pred, privileged_groups=protected_groups, unprivileged_groups=unprotected_groups,
         )
         # Save results
-        print( "        . disparate_impact: storing results")
+        logger.info("Store disparate impact preprocessing results")
         self.disparate_impact = cm.disparate_impact()
         self.transformed_x_train = pd.DataFrame(train_repd.features, columns=X_train.columns, index=X_train.index)
         self.transformed_x_test  = pd.DataFrame(test_repd.features , columns=X_test.columns , index=X_test.index )
