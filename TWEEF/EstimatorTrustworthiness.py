@@ -1,8 +1,12 @@
-""" EstimatorTrustworthiness module containing the TrustworthinessEstimator class. """
+"""Trustworthiness estimation with shared scalar and batch aggregation."""
+from copy import deepcopy
+
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.utils.validation import check_is_fitted
 import pandas as pd
 import numpy as np
-from TWEEF.Constants import LINGUISTIC_VALUES, LINGUISTIC_LABELS, TRUSTWORTHINESS_SCORE_NAME, FUZZY_THRESHOLD_PEAKS, get_metric_thresholds
+
+from TWEEF.Constants import FUZZY_THRESHOLD_PEAKS, LINGUISTIC_VALUES, TRUSTWORTHINESS_SCORE_NAME
 from TWEEF.Metrics import MetricList
 from TWEEF.Aggregation import (
     AGGREGATION,
@@ -10,18 +14,23 @@ from TWEEF.Aggregation import (
     TrustAggregator,
     normalize_score_scale,
 )
-from TWEEF.Calibration import FuzzyCalibrator
+from TWEEF.Calibration import FuzzyCalibrator, membership_vector, triangular_membership
 from TWEEF.Logging import get_logger
+from TWEEF.Validation import validate_metric_list
 
 
 logger = get_logger(__name__)
 
+
 class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
+    """Aggregate normalized metrics using one calibration and selected operator.
+
+    ``compute_metric`` accepts a populated MetricList without requiring fit.
+    ``fit`` configures metric weights and frozen calibration for batch ``transform``.
+    The metric columns returned by transform are continuous linguistic diagnostics;
+    only the Trustworthiness column is the selected operator's aggregated score.
     """
-    TrustworthinessEstimator is a scikit-learn compatible transformer that evaluates the trustworthiness of models based on various metrics. 
-    It uses fuzzy logic to assign linguistic labels to metric values and calculates a trustworthiness score for each model.
-    """
-    
+
     def __init__(
         self,
         verbose: bool = False,
@@ -30,250 +39,236 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         metrics_values: pd.DataFrame = None,
         alpha: float = 0.5,
         trustworthiness_score_scale: str = TRUSTWORTHINESS_SCORE_SCALE.NORMALIZED,
+        gwa_hesitation=0.0,
     ):
-        """
-        Initialize the TrustworthinessEstimator with weights for each metric.
-
-        Parameters:
-        - verbose (bool): If True, print detailed information during operations.
-        """
-        self.weights = None 
         self.verbose = verbose
-        self.thresholds_ = None
-        self.trustworthiness_score = None
         self.aggregation = aggregation
         self.fuzzy_thresholds = fuzzy_thresholds
         self.metrics_values = metrics_values
         self.alpha = alpha
-        self.trustworthiness_score_scale = normalize_score_scale(
-            trustworthiness_score_scale
-        )
+        self.trustworthiness_score_scale = normalize_score_scale(trustworthiness_score_scale)
+        self.gwa_hesitation = gwa_hesitation
+        self.weights = None
+        self.thresholds_ = None
+        self.trustworthiness_score = None
         self.aggregation_result_ = None
-        self.calibrator_ = FuzzyCalibrator(
-            thresholds=fuzzy_thresholds,
-            metrics_values=metrics_values,
-        )
+        if fuzzy_thresholds is not None and metrics_values is not None:
+            raise ValueError("thresholds and metrics_values are mutually exclusive.")
+        # Metric weights are not known until fit/compute_metric. Snapshot now,
+        # but validate/calibrate only metrics with positive weight at first use.
+        self._configured_thresholds = deepcopy(fuzzy_thresholds)
+        self._configured_reference = deepcopy(metrics_values)
+        self.calibrator_ = None
 
-    def fit(self, fuzzy_functions_thresholds: pd.DataFrame = None, metrics_values: pd.DataFrame = None, metric_list: MetricList = None):
+    def set_params(self, **params):
+        """Refresh calibration snapshots when sklearn changes their parameters.
+
+        A different calibration source requires a new fit before transform;
+        changing the aggregation operator or its parameters retains fitted crests.
         """
-        Fit the model by setting fuzzy triangle peaks (thresholds) for each metric.
-        
-        
-        Parameters:
-        - fuzzy_functions_thresholds (pd.DataFrame): 
-            DataFrame containing fuzzy triangle peaks for each metric. The DataFrame should have peaks as columns and metrics as rows.
-            Example of a fuzzy_functions_thresholds DataFrame:
-            |         | Metric1 | Metric2 | Metric3 | Metric4 | Metric5 |
-            |---------|---------|---------|---------|---------|---------|
-            | peak_-2 | 0.1     | 0.2     | 0.2     | 0.2     | 0.2     |
-            | peak_-1 | 0.3     | 0.4     | 0.4     | 0.4     | 0.4     |
-            | peak_0  | 0.5     | 0.6     | 0.6     | 0.6     | 0.6     |
-            | peak_1  | 0.7     | 0.8     | 0.8     | 0.8     | 0.8     |
-            | peak_2  | 0.9     | 1.0     | 1.0     | 1.0     | 1.0     |
-            
-        - metrics_values (pd.DataFrame): 
-            DataFrame containing metrics values for a set of models. The DataFrame should have metrics as columns and models as rows.
-            Example of a metrics_values DataFrame:
-            |         | Metric1 | Metric2 | Metric3 | Metric4 | Metric5 |
-            |---------|---------|---------|---------|---------|---------|
-            | Model1  | 0.25    | 0.32    | 0.4     | 0.5     | 0.6     |
-            | Model2  | 0.37    | 0.43    | 0.5     | 0.6     | 0.7     |
-            | Model3  | 0.41    | 0.51    | 0.6     | 0.7     | 0.8     |
-            | Model4  | 0.58    | 0.64    | 0.71    | 0.8     | 0.9     |
-            | Model5  | 0.60    | 0.71    | 0.8     | 0.9     | 1.0     |
-            
-        Returns:
-        - self (TrustworthinessEstimator): Fitted estimator.
-        """
-        if metrics_values is None and fuzzy_functions_thresholds is None and metric_list is None:
-            raise ValueError("You must provide one of fuzzy_functions_thresholds or metrics_values or metric_list.")
-        
-
-        if fuzzy_functions_thresholds is not None:
-            self.thresholds_ = fuzzy_functions_thresholds
-        elif metric_list is not None:
-            self.thresholds_ = {
-                metric.name: pd.Series(
-                    get_metric_thresholds(metric.name),
-                    index=FUZZY_THRESHOLD_PEAKS,
-                    dtype=float,
-                )
-                for metric in metric_list.get_metrics()
-            }
-            self.weights = {
-                metric.name: metric.weight for metric in metric_list.get_metrics()
-            }
-        else:
-            self.thresholds_ = { col: self._compute_metric_thresholds(metrics_values, col) for col in metrics_values.columns }
-            equal_weight = 1.0 / len(metrics_values.columns)
-            self.weights = {col: equal_weight for col in metrics_values.columns}
-
-        if self.verbose:
-            logger.debug("Fitting complete. Thresholds for each metric: %s", self.thresholds_)
+        calibration_changed = bool({"fuzzy_thresholds", "metrics_values"}.intersection(params))
+        if calibration_changed:
+            thresholds = params.get("fuzzy_thresholds", self.fuzzy_thresholds)
+            reference = params.get("metrics_values", self.metrics_values)
+            if thresholds is not None and reference is not None:
+                raise ValueError("thresholds and metrics_values are mutually exclusive.")
+        super().set_params(**params)
+        if calibration_changed:
+            self._configured_thresholds = deepcopy(self.fuzzy_thresholds)
+            self._configured_reference = deepcopy(self.metrics_values)
+            for name in (
+                "weights_", "metric_goals_", "feature_names_in_",
+                "n_features_in_", "aggregation_results_",
+            ):
+                self.__dict__.pop(name, None)
+            self.weights = None
+            self.thresholds_ = None
+            self.calibrator_ = None
+            self.aggregation_result_ = None
+            self.trustworthiness_score = None
         return self
 
-    def _compute_metric_thresholds(self, metrics_values: pd.DataFrame, column: str):
-        """
-        Define fuzzy triangle peaks based on quantiles for each metric.
+    def fit(self, fuzzy_functions_thresholds=None, metrics_values=None, metric_list=None):
+        """Freeze calibration and weights for subsequent batch estimation.
 
-        Parameters:
-        - df (pd.DataFrame): DataFrame containing the metric.
-        - column (str): Column name of the metric.
-
-        Returns:
-        - thresholds (dict): Dictionary of threshold values.
+        The positional threshold argument and all existing keyword arguments are
+        preserved. Fit-time calibration overrides constructor calibration. Weights
+        are configured independently through metric_list, or uniformly by default.
+        Explicit crests and reference metric values are mutually exclusive.
         """
-        thresholds = {
-            FUZZY_THRESHOLD_PEAKS[0]: metrics_values[column].min(),
-            FUZZY_THRESHOLD_PEAKS[1]: metrics_values[column].quantile(0.25),
-            FUZZY_THRESHOLD_PEAKS[2] : metrics_values[column].quantile(0.50),
-            FUZZY_THRESHOLD_PEAKS[3] : metrics_values[column].quantile(0.75),
-            FUZZY_THRESHOLD_PEAKS[4] : metrics_values[column].max()
-        }
-        return thresholds
+        if fuzzy_functions_thresholds is not None or metrics_values is not None:
+            thresholds, reference = fuzzy_functions_thresholds, metrics_values
+        else:
+            thresholds, reference = self._configured_thresholds, self._configured_reference
+        if thresholds is None and reference is None and metric_list is None:
+            raise ValueError(
+                "You must provide fuzzy_functions_thresholds, metrics_values, or metric_list."
+            )
+        if metric_list is not None:
+            validate_metric_list(metric_list)
+            names = metric_list.get_names()
+            weights = np.asarray(metric_list.get_weights(), dtype=float)
+            goals = dict(zip(names, metric_list.get_goals()))
+        else:
+            names = self._calibration_metric_names(thresholds, reference)
+            weights = np.full(len(names), 1.0 / len(names))
+            goals = {name: 0.0 for name in names}
+        if not np.isfinite(weights).all():
+            raise ValueError("metric weights must be finite.")
+        # Validate names and default weights even when fit was given only a frame.
+        configured_metrics = MetricList()
+        for name, weight in zip(names, weights):
+            configured_metrics.add_metric(name, float(weight), goals[name])
+        validate_metric_list(configured_metrics)
+        active_names = [name for name, weight in zip(names, weights) if weight > 0]
+        calibrator = self._calibration_for_metrics(thresholds, reference, names, active_names)
+        frozen_thresholds = {name: calibrator.thresholds_for(name) for name in active_names}
+        self.calibrator_ = FuzzyCalibrator(thresholds=frozen_thresholds)
+        self.thresholds_ = frozen_thresholds
+        self.weights_ = dict(zip(names, weights))
+        self.weights = self.weights_
+        self.metric_goals_ = goals
+        self.feature_names_in_ = np.asarray(names, dtype=object)
+        self.n_features_in_ = len(names)
+        self.aggregation_results_ = []
+        self.aggregation_result_ = None
+        self.trustworthiness_score = None
+        return self
+
+    @staticmethod
+    def _calibration_metric_names(thresholds, reference):
+        """Read calibration schema without evaluating inactive metric values."""
+        if thresholds is not None and reference is not None:
+            raise ValueError("thresholds and metrics_values are mutually exclusive.")
+        if reference is not None:
+            if not isinstance(reference, pd.DataFrame):
+                raise TypeError("metrics_values must be a pandas.DataFrame.")
+            if reference.empty or reference.columns.has_duplicates:
+                raise ValueError("metrics_values must have rows and unique metric columns.")
+            return list(reference.columns)
+        if isinstance(thresholds, pd.DataFrame):
+            if thresholds.empty or thresholds.index.has_duplicates or thresholds.columns.has_duplicates:
+                raise ValueError("thresholds must have rows and unique metric and crest labels.")
+            if set(FUZZY_THRESHOLD_PEAKS).issubset(thresholds.columns):
+                return list(thresholds.index)
+            if set(FUZZY_THRESHOLD_PEAKS).issubset(thresholds.index):
+                return list(thresholds.columns)
+            raise ValueError("thresholds DataFrame must have fuzzy peaks as columns or index.")
+        if thresholds is not None:
+            if not hasattr(thresholds, "items") or not len(thresholds):
+                raise ValueError("thresholds must contain at least one metric.")
+            return list(thresholds)
+        return []
+
+    @classmethod
+    def _calibration_for_metrics(cls, thresholds, reference, names, active_names):
+        """Exclude zero-weight metrics before validating their calibration.
+
+        Missing inactive metrics are allowed. Unrecognized extra metric names
+        are rejected so misspelled calibration columns cannot go unnoticed.
+        """
+        if thresholds is None and reference is None:
+            return FuzzyCalibrator()
+        supplied_names = cls._calibration_metric_names(thresholds, reference)
+        unknown_names = set(supplied_names).difference(names)
+        if unknown_names:
+            raise ValueError(f"unknown calibration metrics: {sorted(unknown_names)!r}")
+        missing_names = set(active_names).difference(supplied_names)
+        if missing_names:
+            raise ValueError(f"missing calibration for active metrics: {sorted(missing_names)!r}")
+        if reference is not None:
+            return FuzzyCalibrator(metrics_values=reference.loc[:, active_names])
+        if isinstance(thresholds, pd.DataFrame):
+            selected = (
+                thresholds.loc[active_names]
+                if set(FUZZY_THRESHOLD_PEAKS).issubset(thresholds.columns)
+                else thresholds.loc[:, active_names]
+            )
+        else:
+            selected = {name: thresholds[name] for name in active_names}
+        return FuzzyCalibrator(thresholds=selected)
+
+    def _compute_metric_thresholds(self, metrics_values, column):
+        """Compatibility helper delegated to the shared quartile calibrator."""
+        return FuzzyCalibrator(metrics_values=metrics_values[[column]]).thresholds_for(column).to_dict()
 
     def _triangular_membership(self, x, delta_low, delta_peak, delta_high):
-        """
-        Calculate triangular membership for a given value.
-
-        Parameters:
-        - x (float): Value to calculate membership for.
-        - delta_low (float): Start of the triangle.
-        - delta_peak (float): Peak of the triangle.
-        - delta_high (float): End of the triangle.
-
-        Returns:
-        - result (float): Membership value.
-        """
-        if x <= delta_low or x >= delta_high:
-            result = 0
-        elif x <= delta_peak:
-            result = (x - delta_low) / (delta_peak - delta_low)
-        elif x <= delta_high:
-            result = (delta_high - x) / (delta_high - delta_peak)
-        else:
-            result = 0
-
-        if self.verbose:
-            logger.debug(
-                "Membership for x=%s range=(%s, %s, %s): %s",
-                x,
-                delta_low,
-                delta_peak,
-                delta_high,
-                result,
-            )
-        return result
+        return triangular_membership(x, delta_low, delta_peak, delta_high)
 
     def _assign_linguistic_label(self, value, thresholds):
-        """
-        Assign a linguistic label based on the calculated membership values.
+        vector = membership_vector(value, thresholds)
+        return LINGUISTIC_VALUES[int(np.argmax(vector))], float(np.dot(vector, LINGUISTIC_VALUES))
 
-        Parameters:
-        - value (float): The metric value to evaluate.
-        - thresholds (dict): Dictionary of peak thresholds.
-
-        Returns:
-        - linguistic_value (int): Assigned linguistic value.
-        - S (float): Weighted sum of linguistic values.
-        """
-        membership_values = [
-            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[0]] - (thresholds[FUZZY_THRESHOLD_PEAKS[1]] - thresholds[FUZZY_THRESHOLD_PEAKS[0]]), thresholds[FUZZY_THRESHOLD_PEAKS[0]], thresholds[FUZZY_THRESHOLD_PEAKS[1]]),
-            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[0]], thresholds[FUZZY_THRESHOLD_PEAKS[1]], thresholds[FUZZY_THRESHOLD_PEAKS[2]]),
-            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[1]], thresholds[FUZZY_THRESHOLD_PEAKS[2]], thresholds[FUZZY_THRESHOLD_PEAKS[3]]),
-            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[2]], thresholds[FUZZY_THRESHOLD_PEAKS[3]], thresholds[FUZZY_THRESHOLD_PEAKS[4]]),
-            self._triangular_membership(value, thresholds[FUZZY_THRESHOLD_PEAKS[3]], thresholds[FUZZY_THRESHOLD_PEAKS[4]], thresholds[FUZZY_THRESHOLD_PEAKS[4]] + (thresholds[FUZZY_THRESHOLD_PEAKS[4]] - thresholds[FUZZY_THRESHOLD_PEAKS[3]]))
-        ]
-        S = sum([a * b for a, b in zip(LINGUISTIC_VALUES, membership_values)])
-        max_index = np.argmax(membership_values)
-        linguistic_value = LINGUISTIC_VALUES[max_index]
-
-        if self.verbose:
-            logger.debug("Compute linguistic variable for value %s", value)
-            logger.debug("Membership values: %s", membership_values)
-            logger.debug("Linguistic values: %s", LINGUISTIC_VALUES)
-            logger.debug(
-                "Weighted sum S=%s, chosen label=%s (%s)",
-                S,
-                LINGUISTIC_LABELS[max_index],
-                linguistic_value,
+    def _aggregate_metrics(self, metrics):
+        validate_metric_list(metrics, require_values=True)
+        if not np.isfinite(np.asarray(metrics.get_values(), dtype=float)).all():
+            raise ValueError("metric values must be finite.")
+        if not np.isfinite(np.asarray(metrics.get_weights(), dtype=float)).all():
+            raise ValueError("metric weights must be finite.")
+        if not hasattr(self, "weights_"):
+            self.calibrator_ = self._calibration_for_metrics(
+                self._configured_thresholds,
+                self._configured_reference,
+                metrics.get_names(),
+                [metric.name for metric in metrics.get_metrics() if metric.weight > 0],
             )
-        return linguistic_value, S
-
-    def transform(self, X):
-        """
-        Transform the data to calculate trustworthiness scores.
-
-        Parameters:
-        - X (pd.DataFrame): DataFrame containing metrics for each model.
-
-        Returns:
-        - result (pd.DataFrame): Original DataFrame with an additional column for trustworthiness score.
-        """
-        trustworthiness_scores = []
-        s_values = pd.DataFrame(index=X.index, columns=X.columns)
-
-        for index, row in X.iterrows():
-            final_score = 0
-            if self.verbose:
-                logger.debug("Calculate trustworthiness for model at index %s", index)
-
-            for col in X.columns:
-                thresholds = self.thresholds_[col]
-                _, S = self._assign_linguistic_label(row[col], thresholds)
-                s_values.at[index, col] = S
-                weighted_value = self.weights.get(col, 1.0) * S
-                final_score += weighted_value
-
-                if self.verbose:
-                    logger.debug("Metric=%s value=%s", col, row[col])
-                    logger.debug("Thresholds: %s", thresholds)
-                    logger.debug("S=%s weight=%s", S, self.weights[col])
-                    logger.debug("Weighted contribution=%s", weighted_value)
-
-            trustworthiness_scores.append(final_score)
-            if self.verbose:
-                logger.debug(
-                    "Final trustworthiness score for index %s: %s",
-                    index,
-                    final_score,
-                )
-
-        if self.trustworthiness_score_scale == TRUSTWORTHINESS_SCORE_SCALE.LINGUISTIC:
-            s_values[TRUSTWORTHINESS_SCORE_NAME] = trustworthiness_scores
-        else:
-            s_values[TRUSTWORTHINESS_SCORE_NAME] = [
-                (score + 2.0) / 4.0 for score in trustworthiness_scores
-            ]
-        
-        return s_values    
-
-    def compute_metric(self, metrics: MetricList):
-        """
-        Computes trustworthiness score.
-
-        Parameters:
-        - metrics (MetricList): List of metrics .
-
-        Returns:
-        - result float: Trustworthiness score.
-        """
-        aggregator = TrustAggregator(
+        return TrustAggregator(
             operator=self.aggregation,
             calibrator=self.calibrator_,
             alpha=self.alpha,
             score_scale=self.trustworthiness_score_scale,
-        )
-        self.aggregation_result_ = aggregator.aggregate(metrics)
+            gwa_hesitation=self.gwa_hesitation,
+        ).aggregate(metrics)
+
+    def transform(self, X):
+        """Aggregate each row, preserving its index and linguistic diagnostics.
+
+        Per-row AggregationResult objects are stored in aggregation_results_ in
+        the same order as X, including when its index contains duplicate labels.
+        A zero-weight metric has no calibration requirement and its linguistic
+        diagnostic is NaN; its original value must still be a valid metric value.
+        """
+        check_is_fitted(self, ["weights_", "feature_names_in_"])
+        if not isinstance(X, pd.DataFrame):
+            raise TypeError("X must be a pandas.DataFrame of metric values.")
+        if X.columns.has_duplicates or set(X.columns) != set(self.feature_names_in_):
+            raise ValueError("X must contain exactly the fitted metric columns, without duplicates.")
+        try:
+            values = X.astype(float)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("metric values must be numeric.") from exc
+        if not np.isfinite(values.to_numpy()).all():
+            raise ValueError("metric values must be finite.")
+        if ((values < 0) | (values > 1)).to_numpy().any():
+            raise ValueError("metric values must be in [0, 1].")
+        diagnostics = pd.DataFrame(index=X.index, columns=X.columns, dtype=float)
+        scores = []
+        results = []
+        for position, (_, row) in enumerate(values.iterrows()):
+            metrics = MetricList()
+            for name in self.feature_names_in_:
+                metrics.add_metric(
+                    name, float(self.weights_[name]), self.metric_goals_[name], float(row[name]),
+                )
+            result = self._aggregate_metrics(metrics)
+            results.append(result)
+            scores.append(result.score)
+            for name in X.columns:
+                if self.weights_[name] == 0:
+                    continue
+                _, score = self._assign_linguistic_label(row[name], self.thresholds_[name])
+                diagnostics.iloc[position, X.columns.get_loc(name)] = score
+        diagnostics[TRUSTWORTHINESS_SCORE_NAME] = scores
+        self.aggregation_results_ = results
+        self.aggregation_result_ = results[-1] if results else None
+        self.trustworthiness_score = results[-1].score if results else None
+        return diagnostics
+
+    def compute_metric(self, metrics: MetricList):
+        """Aggregate a populated MetricList with the configured calibration."""
+        self.aggregation_result_ = self._aggregate_metrics(metrics)
         self.trustworthiness_score = self.aggregation_result_.score
-
         if self.verbose:
-            for metric in metrics.get_metrics():
-                thresholds = self.calibrator_.thresholds_for(metric.name)
-                logger.debug("Metric=%s value=%s", metric.name, metric.value)
-                logger.debug("Thresholds: %s", thresholds)
-                logger.debug("Weight=%s", metric.weight)
-
             logger.debug("Final trustworthiness score=%s", self.trustworthiness_score)
         return self.trustworthiness_score
 

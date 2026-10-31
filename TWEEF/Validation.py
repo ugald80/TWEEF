@@ -1,7 +1,7 @@
 """Validation helpers for TWEEF inputs."""
 
 from collections import Counter
-from math import isclose
+from math import isclose, isfinite
 
 import pandas as pd
 
@@ -28,8 +28,12 @@ def validate_metric_list(metrics: MetricList, require_values: bool = False) -> N
         raise ValueError(f"unknown metric names: {unknown_names}")
 
     weights = metrics.get_weights()
-    if any(weight < 0 or weight > 1 for weight in weights):
-        raise ValueError("metric weights must be in the range [0, 1].")
+    try:
+        valid_weights = all(isfinite(weight) and 0 <= weight <= 1 for weight in weights)
+    except (TypeError, ValueError):
+        valid_weights = False
+    if not valid_weights:
+        raise ValueError("metric weights must be finite numbers in the range [0, 1].")
     if not isclose(sum(weights), 1.0, rel_tol=1e-9, abs_tol=1e-9):
         raise ValueError("metric weights must sum to 1.")
 
@@ -37,8 +41,12 @@ def validate_metric_list(metrics: MetricList, require_values: bool = False) -> N
         for metric in metrics.get_metrics():
             if metric.value is None:
                 raise ValueError(f"metric {metric.name!r} has no computed value.")
-            if metric.value < 0 or metric.value > 1:
-                raise ValueError(f"metric {metric.name!r} value must be in [0, 1].")
+            try:
+                valid_value = isfinite(metric.value) and 0 <= metric.value <= 1
+            except (TypeError, ValueError):
+                valid_value = False
+            if not valid_value:
+                raise ValueError(f"metric {metric.name!r} value must be finite and in [0, 1].")
 
 
 def validate_groups(X: pd.DataFrame, protected_groups, unprotected_groups) -> None:

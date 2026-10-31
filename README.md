@@ -2,6 +2,124 @@
 
 Trustworthiness Estimation and Enhancement Framework for Machine Learning Models.
 
+## Aggregation correction and German benchmark
+
+Scalar `TrustworthinessEstimator.compute_metric()` and batch `fit()/transform()`
+use the same selected operator, calibration, importance weights, and score scale.
+`transform()` keeps the original row index and continuous linguistic diagnostics
+in the metric columns; `Trustworthiness` contains the selected operator's score.
+Per-row `AggregationResult` objects are available in `aggregation_results_`.
+
+Empirical calibration is frozen at `[minimum, P25, P50, P75, maximum]`, using
+linear quantile interpolation independently for each metric. Repeated crests
+are allowed. A completely constant reference cannot identify a relative scale
+and raises an explicit error instead of inventing thresholds. Explicit expert
+crests and the existing fixed defaults remain supported.
+
+Subjective Logic now averages Dirichlet evidence with the assigned metric
+importance weights. With prior weight `W=2`, each non-dogmatic opinion gives
+`r_i=2*b_i/u_i`, `s_i=2*d_i/u_i`; evidence is averaged with the normalized weights
+and mapped back using `b=r/(2+r+s)`, `d=s/(2+r+s)`, `u=2/(2+r+s)`.
+The result is projected as `b + alpha*u`. This is an importance-weighted extension
+of averaging fusion, **not** the previous cumulative consensus or the standard
+confidence-weighted belief fusion. Zero weights contribute no evidence. Vacuous
+opinions contribute zero evidence; positive-weight dogmatic opinions dominate
+finite evidence and are averaged among themselves using renormalized importance
+weights (a common-rate zero-uncertainty limit).
+The distinction between averaging and cumulative fusion is discussed in
+[Multi-Source Fusion Operations in Subjective Logic](https://arxiv.org/abs/1805.01388).
+
+GWA accepts `gwa_hesitation=0.0` as a scalar or a partial mapping by metric name.
+For the favorable linguistic expectation `z`, the TWEEF mapping is
+`mu=(1-h)*z`, `nu=(1-h)*(1-z)`, `pi=h`. Unspecified mapping entries have zero
+hesitation. The default preserves the previous GWA with the same calibration.
+Input and aggregated hesitations are included in `AggregationResult.details`.
+Complete uncertainty returns the neutral score `0.5`; uncertainty and the
+relative score `mu/(mu+nu)` are reported separately. A greater hesitation does
+not necessarily decrease this relative score.
+The Gaussian aggregation formula follows
+[Ünver (2025)](https://doi.org/10.1007/s00357-025-09507-4); the proportional
+hesitation mapping above is the explicit TWEEF adaptation.
+
+The reproducible runner `experiments/german_aggregation.py` evaluates DT, RF, ET,
+Linear Regression (binary threshold 0.5), Linear SVM, AdaBoost SAMME.R, Gradient
+Boosting and XGBoost on all 1,000 German records. It uses Accuracy, Equal
+Opportunity and loss-based Effective Complexity. Each seed uses identical
+60/20/20 train/calibration/test partitions stratified by target and gender, with
+preprocessing fitted only on training data. The enhancement/surrogate pipeline
+does not participate in this aggregation benchmark.
+
+Create a separate environment and preserve a baseline source snapshot:
+
+```sh
+python3 -m venv .venv-paper
+.venv-paper/bin/python -m pip install --upgrade pip
+.venv-paper/bin/python -m pip install -e . -r experiments/requirements-german.txt
+mkdir -p /tmp/tweef-baseline-a36fe25
+git archive a36fe25 | tar -x -C /tmp/tweef-baseline-a36fe25
+```
+
+On macOS, if XGBoost cannot locate OpenMP, the installed scikit-learn wheel's
+bundled runtime can be used without a system installation:
+
+```sh
+export DYLD_FALLBACK_LIBRARY_PATH="$(.venv-paper/bin/python -c 'import pathlib, sklearn; print(pathlib.Path(sklearn.__file__).parent / ".dylibs")')"
+```
+
+Run all repetitions, reusing cached metric matrices when available:
+
+```sh
+.venv-paper/bin/python experiments/german_aggregation.py \
+  --baseline-root /tmp/tweef-baseline-a36fe25 \
+  --seeds 0 1 2 3 4 5 6 7 8 9 \
+  --output experiments/results/german --reuse-metrics
+.venv-paper/bin/python experiments/summarize_german.py \
+  --input experiments/results/german
+```
+
+The saved results include data/source checksums, splits, model parameters,
+environment versions, metric matrices, crests, aggregation details, paired score
+differences, rankings and API consistency checks. `legacy_native` executes the
+unmodified baseline's P20/P40/P60 scalar calibration and quartile batch path;
+`legacy_quartiles` supplies identical quartile crests to both baseline paths to
+isolate operator changes. Nonuniform legacy batch weights are assigned explicitly
+to its existing `.weights` attribute because its `fit()` has no weight argument.
+`corrected` executes this branch with both interfaces sharing one calibrator.
+
+The current probability-based Effective Complexity helper uses absolute soft-label
+cross-entropy rather than degradation from the unrestricted model. When the
+reference entropy already exceeds the loss threshold `0.05`, its score is
+necessarily zero. The runner records this condition and uses the exact entropy
+lower bound to avoid redundant computations; the underlying metric is unchanged
+in this correction. This limits conclusions about interpretability and must be
+addressed before treating this benchmark as final paper evidence.
+
+The saved ten-seed run contains 80 trained models and 45,600 paired API result
+rows, with no failed configurations. Batch/scalar scores are exactly equal in
+the corrected implementation. SL responds to importance weights in all 80
+seed/model cases, compared with none in either legacy scenario. With full GWA
+hesitation, all 80 cases return score 0.5 and aggregated hesitation 1.
+
+| Operator | Mean paired score change vs legacy native | Change with identical quartile calibration |
+|---|---:|---:|
+| LWA | -0.027083 | 0 |
+| GWA, zero hesitation | -0.019092 | within 2.1e-16 per case |
+| SL | +0.363882 | -0.006023 |
+
+These are descriptive changes on the same metric inputs, not improvements in
+predictive performance or evidence that an operator is superior. Most of the
+large SL change comes from recalibration: the old EC crests often produce
+zero uncertainty, giving zero-EC opinions dogmatic influence. Under identical
+quartiles, SL's mean fusion change is much smaller. Effective Complexity was
+zero in every test repetition for RF, ET, AB, GB and XGB, and in 4/10 for LR.
+
+See the [per-model comparison](experiments/results/german/comparison_by_model.csv)
+for means, standard deviations and paired differences, and the
+[audit summary](experiments/results/german/audit_summary.json) for API consistency,
+weight sensitivity, hesitation, rankings and metric limitations.
+
+![German comparison: means and standard deviations across ten paired splits](experiments/results/german/german_before_after.png)
+
 TWEEF is a Python framework for estimating and improving the trustworthiness of
 binary classification models. It evaluates three trust dimensions:
 

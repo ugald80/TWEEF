@@ -58,6 +58,7 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         effective_complexity_threshold=0.95,
         effective_complexity_loss_threshold=0.05,
         effective_complexity_repeats=3,
+        gwa_hesitation=0.0,
     ):
         self.given_classifier = given_classifier
         self.protected_groups = protected_groups
@@ -85,6 +86,7 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         self.effective_complexity_threshold = effective_complexity_threshold
         self.effective_complexity_loss_threshold = effective_complexity_loss_threshold
         self.effective_complexity_repeats = effective_complexity_repeats
+        self.gwa_hesitation = gwa_hesitation
 
     def _reset_runtime_state(self):
         fitted_attributes = [
@@ -242,6 +244,7 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         logger.info("Compute trustworthiness score")
         trust_estimator = TrustworthinessEstimator(
             aggregation=self.aggregation,
+            gwa_hesitation=self.gwa_hesitation,
             fuzzy_thresholds=self.fuzzy_thresholds,
             metrics_values=self.metrics_values,
             alpha=self.aggregation_alpha,

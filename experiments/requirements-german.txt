@@ -1,0 +1,11 @@
+# Paper configuration: scikit-learn 1.5 retains AdaBoost SAMME.R.
+numpy==1.26.4
+pandas==2.3.3
+scipy==1.13.1
+scikit-learn==1.5.2
+matplotlib==3.9.4
+interpret-core==0.6.15
+xgboost==2.1.4
+pytest==8.4.2
+aif360==0.6.1
+BlackBoxAuditing==0.1.54
