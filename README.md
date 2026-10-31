@@ -2,6 +2,34 @@
 
 Trustworthiness Estimation and Enhancement Framework for Machine Learning Models.
 
+## Effective Complexity fidelity correction
+
+Loss-based Effective Complexity now measures changes from the unrestricted model.
+For probabilistic predictions it uses mean Bernoulli KL divergence
+`D(p || q) = H(p,q) - H(p,p)`, with natural logarithms. Original and restricted
+predictions that are identical have exactly zero loss, even if their probabilities
+are uncertain. For models without `predict_proba`, loss remains the fraction of
+class predictions that change. Probabilities are clipped in float64 for finite
+endpoint calculations. The minimum top-k subset is accepted when mean fidelity
+loss is at most the configured nonnegative tolerance, allowing only relative
+floating-point rounding at the comparison boundary.
+
+The interpretation score remains `I_EC = 1 - k/N`. A zero score is still valid
+when all variables are needed. The correction removes the previous entropy floor
+that could force this result even with all variables retained. The `attribution`
+proxy, attribution ordering, permutations, random seeds and hard-label prediction
+rule are unchanged.
+
+The default tolerance `0.05` is **0.05 nats for KL** and a **0.05 disagreement
+fraction for hard labels**. These have different units. This is fidelity to the
+model's predictions, rather than loss of accuracy against true labels; comparing
+the meaning of tolerances across model interfaces requires care.
+
+Historical aggregation-only results are preserved in `experiments/results/german`.
+The EC correction is evaluated separately in `experiments/results/german_ec_kl`.
+Metric caches include data, source and environment fingerprints; incompatible
+caches or output directories are rejected before the old manifest is overwritten.
+
 ## Aggregation correction and German benchmark
 
 Scalar `TrustworthinessEstimator.compute_metric()` and batch `fit()/transform()`
@@ -72,9 +100,11 @@ Run all repetitions, reusing cached metric matrices when available:
 .venv-paper/bin/python experiments/german_aggregation.py \
   --baseline-root /tmp/tweef-baseline-a36fe25 \
   --seeds 0 1 2 3 4 5 6 7 8 9 \
-  --output experiments/results/german --reuse-metrics
+  --output experiments/results/german_ec_kl --reuse-metrics
 .venv-paper/bin/python experiments/summarize_german.py \
-  --input experiments/results/german
+  --input experiments/results/german_ec_kl
+.venv-paper/bin/python experiments/compare_ec_correction.py \
+  --before experiments/results/german --after experiments/results/german_ec_kl
 ```
 
 The saved results include data/source checksums, splits, model parameters,
@@ -86,15 +116,13 @@ isolate operator changes. Nonuniform legacy batch weights are assigned explicitl
 to its existing `.weights` attribute because its `fit()` has no weight argument.
 `corrected` executes this branch with both interfaces sharing one calibrator.
 
-The current probability-based Effective Complexity helper uses absolute soft-label
-cross-entropy rather than degradation from the unrestricted model. When the
-reference entropy already exceeds the loss threshold `0.05`, its score is
-necessarily zero. The runner records this condition and uses the exact entropy
-lower bound to avoid redundant computations; the underlying metric is unchanged
-in this correction. This limits conclusions about interpretability and must be
-addressed before treating this benchmark as final paper evidence.
+The historical aggregation-only run below (source commit `785b340`) used absolute
+soft-label cross-entropy for EC. Reference entropy above `0.05` made the condition
+unattainable, forcing the EC score to zero. Its entropy shortcut was valid only
+for that old loss and has been removed from the corrected KL runner. Historical
+results remain available for the paired EC comparison.
 
-The saved ten-seed run contains 80 trained models and 45,600 paired API result
+That historical ten-seed run contains 80 trained models and 45,600 paired API result
 rows, with no failed configurations. Batch/scalar scores are exactly equal in
 the corrected implementation. SL responds to importance weights in all 80
 seed/model cases, compared with none in either legacy scenario. With full GWA
@@ -368,10 +396,10 @@ Accepted values are:
 `Effective Complexity` supports two calculation modes:
 
 - `attribution`: fast proxy based on the cumulative mass of feature attributions.
-- `loss`: original definition based on the expected loss after restricting the
-  model to the top-k attributed features.
+- `loss`: fidelity to the original predictions after restricting the model to
+  its top-k attributed features, using Bernoulli KL or class disagreement.
 
-Use the original loss-based definition with:
+Use the loss-based definition with:
 
 ```python
 classifier = TrustworthyClassifier(

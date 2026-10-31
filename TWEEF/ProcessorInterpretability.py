@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from numbers import Real
+from scipy.special import rel_entr
 from sklearn.base import ClassifierMixin
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import r2_score
@@ -39,6 +41,14 @@ class InterpretabilityProcessing:
         if effective_complexity_mode not in {"attribution", "loss"}:
             raise ValueError(
                 "effective_complexity_mode must be 'attribution' or 'loss'"
+            )
+        if (
+            not isinstance(effective_complexity_loss_threshold, Real)
+            or not np.isfinite(effective_complexity_loss_threshold)
+            or effective_complexity_loss_threshold < 0
+        ):
+            raise ValueError(
+                "effective_complexity_loss_threshold must be finite and nonnegative."
             )
         self.explainable_classifier = None
         self.surrogate_r2_error = None
@@ -129,6 +139,13 @@ class InterpretabilityProcessing:
         return None
 
     def _prediction_loss(self, trained_exp_model, X_reference, X_restricted):
+        """Measure fidelity loss against the unrestricted model.
+
+        Probabilistic predictions use mean Bernoulli KL divergence in nats,
+        equivalent to H(p, q) - H(p, p). Identical predictions therefore have
+        zero loss, including when the model itself is uncertain. Models without
+        predict_proba retain the fraction of changed class predictions.
+        """
         reference_probabilities = self._positive_probabilities(
             trained_exp_model, X_reference
         )
@@ -136,19 +153,31 @@ class InterpretabilityProcessing:
             trained_exp_model, X_restricted
         )
         if reference_probabilities is not None and restricted_probabilities is not None:
+            # Cast before clipping: float32 would round 1-EPSILON back to 1.
+            reference_probabilities = np.asarray(reference_probabilities, dtype=float)
+            restricted_probabilities = np.asarray(restricted_probabilities, dtype=float)
+            if (
+                reference_probabilities.shape != restricted_probabilities.shape
+                or not np.isfinite(reference_probabilities).all()
+                or not np.isfinite(restricted_probabilities).all()
+                or np.any((reference_probabilities < 0) | (reference_probabilities > 1))
+                or np.any((restricted_probabilities < 0) | (restricted_probabilities > 1))
+            ):
+                raise ValueError("Model probabilities must be finite, aligned, and in [0, 1].")
             restricted_probabilities = np.clip(
                 restricted_probabilities, EPSILON, 1 - EPSILON
             )
             reference_probabilities = np.clip(
                 reference_probabilities, EPSILON, 1 - EPSILON
             )
-            return np.mean(
-                -(
-                    reference_probabilities * np.log(restricted_probabilities)
-                    + (1 - reference_probabilities)
-                    * np.log(1 - restricted_probabilities)
-                )
+            divergences = (
+                rel_entr(reference_probabilities, restricted_probabilities)
+                + rel_entr(1 - reference_probabilities, 1 - restricted_probabilities)
             )
+            if not np.isfinite(divergences).all() or np.any(divergences < -1e-12):
+                raise ArithmeticError("Probability fidelity loss must be finite and nonnegative.")
+            # Suppress only cancellation noise; a significant violation is an error.
+            return float(np.mean(np.maximum(divergences, 0.0)))
 
         reference_predictions = trained_exp_model.predict(X_reference)
         restricted_predictions = trained_exp_model.predict(X_restricted)
@@ -178,7 +207,13 @@ class InterpretabilityProcessing:
                 losses.append(
                     self._prediction_loss(trained_exp_model, X, restricted)
                 )
-            if float(np.mean(losses)) < self.effective_complexity_loss_threshold:
+            mean_loss = float(np.mean(losses))
+            threshold = self.effective_complexity_loss_threshold
+            # Averaging repeated values can move an exact boundary by one ULP.
+            # Keep epsilon=0 exact, allowing only relative rounding tolerance.
+            if mean_loss <= threshold or np.isclose(
+                mean_loss, threshold, rtol=4 * np.finfo(float).eps, atol=0.0
+            ):
                 return 1 - (k / len(ordered_feature_indices))
 
         return 0

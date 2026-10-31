@@ -131,8 +131,8 @@ def models(seed):
 
 
 def model_metrics(model, X, y, groups, seed):
-    # This import uses the current checkout, but the metric implementations are
-    # unchanged in this branch and the exact matrices are shared with legacy.
+    # Metric matrices are evaluated once with this checkout's EC loss, then
+    # shared with all aggregation workers. Historical EC remains in its own run.
     from TWEEF.EstimatorPerformance import PerformanceEstimator
     from TWEEF.EstimatorFairness import FairnessEstimator
     from TWEEF.ProcessorInterpretability import InterpretabilityProcessing
@@ -154,26 +154,33 @@ def model_metrics(model, X, y, groups, seed):
         attribution_source = "permutation_importance_accuracy_5_repeats_seed_0"
     processor.attributions = np.asarray(attributions, dtype=float)
     entropy = None
-    entropy_short_circuit = False
     probabilities = processor._positive_probabilities(model, X)
     if probabilities is not None:
-        from TWEEF.Constants import EPSILON
-        p = np.clip(probabilities, EPSILON, 1 - EPSILON)
-        entropy = float(np.mean(-p * np.log(p) - (1 - p) * np.log(1 - p)))
-        # The existing helper uses cross-entropy H(p,q), whose global lower bound
-        # is H(p,p). If that already exceeds the strict threshold, no k can pass.
-        entropy_short_circuit = entropy >= processor.effective_complexity_loss_threshold
-    complexity = 0.0 if entropy_short_circuit else processor._loss_based_effective_complexity(model, X)
+        entropy = probability_entropy(probabilities)
+    # Entropy remains an audit diagnostic. It is not a lower bound on KL and
+    # must never short-circuit the corrected effective-complexity calculation.
+    complexity = processor._loss_based_effective_complexity(model, X)
     values = {METRICS[0]: float(performance), METRICS[1]: float(fairness),
               METRICS[2]: float(complexity)}
     if not all(np.isfinite(list(values.values()))):
         raise ValueError("Nonfinite model metric")
     return values, {"predictions": predictions.tolist(), "attributions": attributions.tolist(),
                     "attribution_source": attribution_source, "reference_entropy": entropy,
-                    "ec_entropy_short_circuit": entropy_short_circuit}
+                    "ec_entropy_short_circuit": False,
+                    "ec_fidelity_loss": "bernoulli_kl" if probabilities is not None else "class_disagreement"}
 
 
-def train_seed(seed, output):
+def probability_entropy(probabilities):
+    """Finite diagnostic entropy, including float32 probabilities at zero/one."""
+    from TWEEF.Constants import EPSILON
+    p = np.asarray(probabilities, dtype=float)
+    if not np.isfinite(p).all() or np.any((p < 0) | (p > 1)):
+        raise ValueError("Probability entropy requires finite values in [0, 1].")
+    p = np.clip(p, EPSILON, 1 - EPSILON)
+    return float(np.mean(-p * np.log(p) - (1 - p) * np.log(1 - p)))
+
+
+def train_seed(seed, output, metric_protocol_sha256):
     X, y, gender = load_german()
     split = make_split(y, gender, seed)
     preprocessor = make_preprocessor(X)
@@ -183,7 +190,8 @@ def train_seed(seed, output):
         part: pd.DataFrame(preprocessor.transform(X.iloc[indices]), columns=names,
                            index=X.index[indices]) for part, indices in split.items()
     }
-    payload = {"seed": seed, "splits": split, "feature_names": names,
+    payload = {"seed": seed, "metric_protocol_sha256": metric_protocol_sha256,
+               "splits": split, "feature_names": names,
                "calibration": {}, "test": {}, "models": {},
                "preprocessing": {"categories": [v.tolist() for v in preprocessor.named_transformers_["categorical"].categories_],
                                  "numeric_data_min": preprocessor.named_transformers_["numeric"].data_min_.tolist(),
@@ -229,6 +237,35 @@ def configurations():
             configs.append({"name": f"hesitation_{hesitation}", "weights": [1 / 3] * 3,
                             "operator": "gwa", "scale": scale, "hesitation": hesitation})
     return configs
+
+
+def metric_protocol(environment):
+    """Fingerprint metric computation so stale pre-correction caches cannot leak in."""
+    sources = [Path(__file__).resolve(), *[ROOT / "TWEEF" / name for name in (
+        "ProcessorInterpretability.py", "EstimatorPerformance.py", "EstimatorFairness.py",
+        "MatrixScores.py", "Constants.py")]]
+    protocol = {
+        "version": "bernoulli_kl_disagreement_v1",
+        "dataset_sha256": hashlib.sha256(DATASET.read_bytes()).hexdigest(),
+        "environment": environment,
+        "sources": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in sources},
+    }
+    digest = hashlib.sha256(json.dumps(protocol, sort_keys=True).encode()).hexdigest()
+    return protocol, digest
+
+
+def validate_output_protocol(output, digest):
+    manifest_path = output / "manifest.json"
+    if manifest_path.exists():
+        previous = json.loads(manifest_path.read_text())
+        if previous.get("metric_protocol_sha256") != digest:
+            raise ValueError("Output contains a different metric protocol. Use a new --output directory; historical results were preserved.")
+
+
+def validate_metric_cache(payload, seed, digest):
+    if payload.get("seed") != seed or payload.get("metric_protocol_sha256") != digest:
+        raise ValueError(f"Incompatible metric cache for seed {seed}; use a new --output directory or retrain compatible metrics.")
 
 
 def evaluate_worker(args):
@@ -349,7 +386,7 @@ def summarize(output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seeds", nargs="+", type=int, default=list(range(10)))
-    parser.add_argument("--output", type=Path, default=ROOT / "experiments/results/german")
+    parser.add_argument("--output", type=Path, default=ROOT / "experiments/results/german_ec_kl")
     parser.add_argument("--baseline-root", type=Path)
     parser.add_argument("--reuse-metrics", action="store_true")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
@@ -360,22 +397,32 @@ def main():
         return evaluate_worker(args)
     if args.baseline_root is None:
         parser.error("--baseline-root must point to a checkout of the unmodified baseline")
-    args.output.mkdir(parents=True, exist_ok=True)
     sys.path.insert(0, str(ROOT))
     environment = {name: importlib.metadata.version(name) for name in (
         "numpy", "pandas", "scipy", "scikit-learn", "xgboost", "interpret-core")}
+    protocol, protocol_digest = metric_protocol(environment)
+    # Validate before writing even the manifest, preserving historical results.
+    validate_output_protocol(args.output, protocol_digest)
+    if args.reuse_metrics:
+        for seed in args.seeds:
+            cache = args.output / f"metrics_seed_{seed}.json"
+            if cache.exists():
+                validate_metric_cache(json.loads(cache.read_text()), seed, protocol_digest)
+    args.output.mkdir(parents=True, exist_ok=True)
     baseline_commit = "a36fe25ffec66c6b1ea52841e8955cb621ca48de"
     manifest = {"seeds": args.seeds, "dataset_sha256": hashlib.sha256(DATASET.read_bytes()).hexdigest(),
                 "dataset_rows": len(load_german()[0]), "split": "60/20/20 joint target/gender stratification",
-                "metric_names": METRICS, "ec_mode": "existing loss-based helper", "ec_loss_threshold": 0.05,
+                "metric_names": METRICS, "ec_mode": "loss-based fidelity: Bernoulli KL / class disagreement", "ec_loss_threshold": 0.05,
                 "ec_repeats": 3, "environment": environment, "python": sys.version,
+                "metric_protocol": protocol, "metric_protocol_sha256": protocol_digest,
+                "ec_loss_units": {"probabilistic": "nats", "hard_labels": "disagreement fraction"},
                 "baseline_root": args.baseline_root.resolve(), "baseline_commit": baseline_commit,
                 "current_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
                 "current_diff_sha256": hashlib.sha256(subprocess.check_output(["git", "diff"], cwd=ROOT)).hexdigest(),
                 "source_sha256": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                                    for path in [*sorted((ROOT / "TWEEF").glob("*.py")), Path(__file__).resolve()]},
                 "legacy_transform_weights": "Injected into .weights because legacy fit does not accept them",
-                "loss_caveat": "Existing probability loss is cross-entropy, not degradation relative to baseline; entropy lower bound >= threshold implies EC=0"}
+                "loss_caveat": "EC measures fidelity to original predictions, not accuracy loss against true labels. KL 0.05 is measured in nats, not five percentage points of accuracy; hard-label disagreement uses a different scale."}
     write_json(args.output / "manifest.json", manifest)
     for seed in args.seeds:
         cache = args.output / f"metrics_seed_{seed}.json"
@@ -383,7 +430,7 @@ def main():
             print(f"Reusing metrics seed={seed}", flush=True)
         else:
             try:
-                train_seed(seed, args.output)
+                train_seed(seed, args.output, protocol_digest)
             except Exception as error:
                 write_json(args.output / "training_failure.json", {"seed": seed, "error": f"{type(error).__name__}: {error}"})
                 raise

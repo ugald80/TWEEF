@@ -209,7 +209,7 @@ def main():
                                   "Score and rank differences are calculated within matching seed/model/operator pairs.",
                                   "Legacy-native compares actual old default quantiles with corrected quartiles; legacy-quartiles holds calibration fixed.",
                                   "Legacy transform weights were explicitly assigned because its fit API cannot accept weights alongside calibration.",
-                                  "Effective Complexity uses the unchanged implementation's absolute cross-entropy/disagreement definition.",
+                                  "Effective Complexity calculation and units are recorded in manifest.json; historical runs may use absolute cross-entropy, newer runs use KL/disagreement fidelity.",
                                   "These checks validate implementation behavior; no aggregation operator is assumed to be universally best."]}
     write_json(output / "audit_summary.json", summary)
     plot_comparison(compact, output, len(manifest["seeds"]))
