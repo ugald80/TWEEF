@@ -1,0 +1,10 @@
+implementation,operator,mean,max
+corrected,gwa,0.0,0.0
+corrected,lwa,0.0,0.0
+corrected,sl,0.0,0.0
+legacy_native,gwa,0.7473446815761564,3.576315789473684
+legacy_native,lwa,0.43262512146774645,2.0
+legacy_native,sl,0.9957168114996354,4.0
+legacy_quartiles,gwa,0.7357933712036269,3.576315789473684
+legacy_quartiles,lwa,0.4342116677308662,2.0
+legacy_quartiles,sl,0.3488283870445731,2.83218951393109

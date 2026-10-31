@@ -1,0 +1,25 @@
+{
+  "tests": {
+    "corrected_passed": 121,
+    "baseline_passed": 29,
+    "skipped": 1,
+    "skip_reason": "Existing full enhancement demonstration is opt-in (TWEEF_RUN_INTEGRATION=1)."
+  },
+  "benchmark_score_rows": 45600,
+  "corrected_score_rows": 15840,
+  "maximum_corrected_interface_gap": 0.0,
+  "maximum_controlled_lwa_gwa_absolute_difference": 2.012279232133096e-16,
+  "checked_opinion_ifv_rows": {
+    "lwa": 4960,
+    "gwa": 5920,
+    "sl": 4960
+  },
+  "source_checksums_match": true,
+  "all_configurations_succeeded": true,
+  "native_ec_zero_uncertainty_calibration_seeds": [
+    4,
+    6,
+    7
+  ],
+  "implementation_commit": "785b340910cd7a64bc56931769eb049c1e3c0b3a"
+}
