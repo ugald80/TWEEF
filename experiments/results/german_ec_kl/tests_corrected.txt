@@ -1,0 +1,17 @@
+........................................................................ [ 45%]
+........................................................................ [ 91%]
+.............                                                            [100%]
+=============================== warnings summary ===============================
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+  /Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/base.py:493: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+157 passed, 1 skipped, 8 warnings in 29.57s

@@ -1,0 +1,92 @@
+{
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "dataset_sha256": "052476452bc016da5b670c01b976f1563ad2de9465dc00e9ec51e46a7db3c212",
+  "dataset_rows": 1000,
+  "split": "60/20/20 joint target/gender stratification",
+  "metric_names": [
+    "Accuracy",
+    "equal Opportunity",
+    "Effective Complexity"
+  ],
+  "ec_mode": "loss-based fidelity: Bernoulli KL / class disagreement",
+  "ec_loss_threshold": 0.05,
+  "ec_repeats": 3,
+  "environment": {
+    "numpy": "1.26.4",
+    "pandas": "2.3.3",
+    "scipy": "1.13.1",
+    "scikit-learn": "1.5.2",
+    "xgboost": "2.1.4",
+    "interpret-core": "0.6.15"
+  },
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "metric_protocol": {
+    "version": "bernoulli_kl_disagreement_v1",
+    "dataset_sha256": "052476452bc016da5b670c01b976f1563ad2de9465dc00e9ec51e46a7db3c212",
+    "environment": {
+      "numpy": "1.26.4",
+      "pandas": "2.3.3",
+      "scipy": "1.13.1",
+      "scikit-learn": "1.5.2",
+      "xgboost": "2.1.4",
+      "interpret-core": "0.6.15"
+    },
+    "sources": {
+      "experiments/german_aggregation.py": "b6ff6c0c7303d63c0d537215338323d25468a5ee4a2293a10272fc19fbb40cdc",
+      "TWEEF/ProcessorInterpretability.py": "13847fc8d45b3770b576d1a0ecb1390d6724d8282dbd2cdc03609a52c9b9bd79",
+      "TWEEF/EstimatorPerformance.py": "99113db81e5bffc026cc02f7a3975406212c6d6d24735b0ce141d45cc795f3fb",
+      "TWEEF/EstimatorFairness.py": "f896ff3d3133ce0501c3ebc4da67b079595c3ac079157e9f155a5b964f824bd3",
+      "TWEEF/MatrixScores.py": "2fc5bbfc1fd2504c73a77cb7d729d5bcadd87d3f48139554e277f28f74b017e3",
+      "TWEEF/Constants.py": "33d8861e85042adb43ef2eb84465fcb1bc1579e20debf408ea02708303b0303d"
+    }
+  },
+  "metric_protocol_sha256": "2cdfac2ac3316ac298d04324d1ef7be444fe7d180d3072fd2d40f7ccb2437d36",
+  "ec_loss_units": {
+    "probabilistic": "nats",
+    "hard_labels": "disagreement fraction"
+  },
+  "baseline_root": "/private/tmp/tweef-baseline-a36fe25",
+  "baseline_commit": "a36fe25ffec66c6b1ea52841e8955cb621ca48de",
+  "current_commit": "36aaca6f11e287f3825ac22ed4e648629aa18807",
+  "current_diff_sha256": "eae29eb22ea47c9c490a5b583d280df136de28d20afcdaf0ff437bc036f39ea7",
+  "source_sha256": {
+    "TWEEF/Aggregation.py": "eba5267da0a7e8b3fd3236c3175c302164fb3ae8814653876e1f4e9466dfe6a9",
+    "TWEEF/Base.py": "e44822e02e446c1680a6b316743c99d16207edeb5d5522c85be023a945089c1d",
+    "TWEEF/Calibration.py": "a0609cd302b4b8704602767094dbaea6b244501596cc3c282b18bf566b1bcd17",
+    "TWEEF/Constants.py": "33d8861e85042adb43ef2eb84465fcb1bc1579e20debf408ea02708303b0303d",
+    "TWEEF/EstimatorFairness.py": "f896ff3d3133ce0501c3ebc4da67b079595c3ac079157e9f155a5b964f824bd3",
+    "TWEEF/EstimatorInterpretability.py": "bc533fcc6f0e43fcdaed7de37d9c8193339998a0b0012e86b715e0120c2ec8c8",
+    "TWEEF/EstimatorPerformance.py": "99113db81e5bffc026cc02f7a3975406212c6d6d24735b0ce141d45cc795f3fb",
+    "TWEEF/EstimatorTrustworthiness.py": "0f15ae48a40cee29c83d6aae1a5b162e638fb395d4dab57354bb473751ffaf4f",
+    "TWEEF/Logging.py": "529a58c8c223583d53ca87a778e03cb04b8853a81ba6b69c815d93de2e4636f5",
+    "TWEEF/MatrixScores.py": "2fc5bbfc1fd2504c73a77cb7d729d5bcadd87d3f48139554e277f28f74b017e3",
+    "TWEEF/Metrics.py": "88c6fe646c07858b15c798c4683239ec989df1635980ead403bdb2ff1f059828",
+    "TWEEF/ProcessorFairness.py": "5afc0a4dbbe6c8b58902733c632bfac6404c07e04b9c25eb15d7111a441262a2",
+    "TWEEF/ProcessorFairnessPostProcessing.py": "a477e7d2f953f158960dd7c9badcd78c37ee4d2fc0857e972d3a7f5b206ae426",
+    "TWEEF/ProcessorFairnessPreProcessing.py": "3c96b8da7b46aa1cb13a0a4ec0c8069576183012b2afc2f0fbe86f7499855118",
+    "TWEEF/ProcessorInterpretability.py": "13847fc8d45b3770b576d1a0ecb1390d6724d8282dbd2cdc03609a52c9b9bd79",
+    "TWEEF/TrustworthyClassiffier.py": "c71ce48736a27b165d8f6d1a91f8a40f73253f8fcd99358531d902433faa840c",
+    "TWEEF/TrustworthyClassifier.py": "6603657e6c7ddd9da1bb59ef977c884062aa663c3d05be2bb8832516d6922f0f",
+    "TWEEF/UtilsFairnessGroup.py": "e6bd377d06bab8ef2d88162f7d463b69856fb8139248ddabe74d2e9015e7b3e5",
+    "TWEEF/Validation.py": "c39d5498dafe554111e11a175d7a64c2be7baa2c2665bc5c77fe9376ff071231",
+    "TWEEF/__init__.py": "da59c586202bd79331b25366254ca8289c953ae2355cfe813b17723246c706f8",
+    "experiments/german_aggregation.py": "b6ff6c0c7303d63c0d537215338323d25468a5ee4a2293a10272fc19fbb40cdc"
+  },
+  "legacy_transform_weights": "Injected into .weights because legacy fit does not accept them",
+  "loss_caveat": "EC measures fidelity to original predictions, not accuracy loss against true labels. KL 0.05 is measured in nats, not five percentage points of accuracy; hard-label disagreement uses a different scale.",
+  "implementation_commit": "3f0fe15211245f1ed97f4dd837bea89bcf60c08f",
+  "source_commit_verified_after_execution": true,
+  "before_ec_commit": "36aaca6f11e287f3825ac22ed4e648629aa18807",
+  "summary_script_sha256": "b89f7b12067bdb21e0d02971e71220ceb10f26c82b527afb958932011b3772a8"
+}

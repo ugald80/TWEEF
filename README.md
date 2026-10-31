@@ -30,6 +30,39 @@ The EC correction is evaluated separately in `experiments/results/german_ec_kl`.
 Metric caches include data, source and environment fingerprints; incompatible
 caches or output directories are rejected before the old manifest is overwritten.
 
+The paired ten-seed validation of this correction trained the same eight models
+on the same splits and verified identical class predictions, attributions,
+Accuracy and Equal Opportunity in 160 calibration/test model-partitions.
+
+| Model | Previous mean EC score | KL/disagreement mean EC score |
+|---|---:|---:|
+| DT | 0.270492 | 0.270492 |
+| RF | 0 | 0.873770 |
+| ET | 0 | 0.616393 |
+| LR | 0.031148 | 0.031148 |
+| L-SVM | 0.222951 | 0.224590 |
+| AB | 0 | 0.983607 |
+| GB | 0 | 0.747541 |
+| XGB | 0 | 0.339344 |
+
+The small L-SVM change occurs at the inclusive tolerance boundary. EC changes
+also change its empirical crests and uncertainty, so aggregated scores can change
+even for a model with unchanged EC. With equal weights, corrected SL means now
+span 0.650294–0.789365, compared with 0.508892–0.577071 before this EC correction;
+the standard deviation across the eight model means changes from 0.029378 to
+0.058984. This is descriptive dispersion, not a significance test or a claim of
+better predictive performance. The KL tolerance measures preservation of probability
+distributions; it does not measure human understanding or classification accuracy.
+
+See [EC differences by model](experiments/results/german_ec_kl/ec_comparison_by_model.csv),
+[paired trustworthiness differences](experiments/results/german_ec_kl/ec_score_comparison.csv)
+and the [pairing audit](experiments/results/german_ec_kl/ec_correction_summary.json).
+Historical artifacts store class predictions but not per-row probability vectors;
+the audit verifies their stored diagnostics, allowing 2e-7 absolute rounding error
+for the old float32 entropy diagnostic (observed maximum 2.73e-8).
+
+![Paired EC correction on German Credit](experiments/results/german_ec_kl/ec_correction_comparison.png)
+
 ## Aggregation correction and German benchmark
 
 Scalar `TrustworthinessEstimator.compute_metric()` and batch `fit()/transform()`
