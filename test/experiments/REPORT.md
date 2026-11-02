@@ -373,4 +373,3 @@ The demo requires the optional fairness and interpretability dependencies:
 ```bash
 python3 -m pip install -e ".[all]"
 ```
-
