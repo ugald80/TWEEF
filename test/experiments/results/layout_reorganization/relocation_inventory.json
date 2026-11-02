@@ -1,0 +1,662 @@
+{
+  "original_results_commit": "2fe814e",
+  "artifact_count": 131,
+  "all_original_bytes_preserved": true,
+  "artifacts": [
+    {
+      "previous_path": "experiments/results/german/audit_summary.json",
+      "current_path": "test/experiments/results/german/audit_summary.json",
+      "sha256": "95126c1a11d523de30ccab81323f5f7c0c70ac95097e21b414a995a7f157aea4"
+    },
+    {
+      "previous_path": "experiments/results/german/comparison_by_model.csv",
+      "current_path": "test/experiments/results/german/comparison_by_model.csv",
+      "sha256": "939e5558bf785448b492608f49aba855a697e6ad37ada77f827b4c2dbee62df6"
+    },
+    {
+      "previous_path": "experiments/results/german/comparison_by_operator.csv",
+      "current_path": "test/experiments/results/german/comparison_by_operator.csv",
+      "sha256": "d8c36f32fbd70fc8bd13bf72a317617851afde7ad6c8aad8c136dc075e3e6ba6"
+    },
+    {
+      "previous_path": "experiments/results/german/details_corrected.jsonl.gz",
+      "current_path": "test/experiments/results/german/details_corrected.jsonl.gz",
+      "sha256": "0c04690a41042c16c2998a666c0ce200954b564d58a21c5061849d6cb5a986da"
+    },
+    {
+      "previous_path": "experiments/results/german/details_legacy_native.jsonl.gz",
+      "current_path": "test/experiments/results/german/details_legacy_native.jsonl.gz",
+      "sha256": "1df66779ac6aa72f1b24d430efdab16824382fa629ac6af73861ad94496ffdc4"
+    },
+    {
+      "previous_path": "experiments/results/german/details_legacy_quartiles.jsonl.gz",
+      "current_path": "test/experiments/results/german/details_legacy_quartiles.jsonl.gz",
+      "sha256": "a13660c5607e2d1fb6feca223bc7a1ccf479935db62a7c06c56af57572861ae7"
+    },
+    {
+      "previous_path": "experiments/results/german/effective_complexity_audit.csv",
+      "current_path": "test/experiments/results/german/effective_complexity_audit.csv",
+      "sha256": "169f84ce12f2e88ffb90ea87b87aab7cb5caaace8924b5a1adf546cda57eb65e"
+    },
+    {
+      "previous_path": "experiments/results/german/effective_complexity_diagnostics.csv",
+      "current_path": "test/experiments/results/german/effective_complexity_diagnostics.csv",
+      "sha256": "cf67c61108da41a1fa2607a6f9b399148ca2fb9c6724c5f515bf36756d6b1c37"
+    },
+    {
+      "previous_path": "experiments/results/german/environment-freeze.txt",
+      "current_path": "test/experiments/results/german/environment-freeze.txt",
+      "sha256": "55da2595706a630b9759450fa95fc7435f12b34b6882dcd4af23c6445cc8f377"
+    },
+    {
+      "previous_path": "experiments/results/german/failures_corrected.json",
+      "current_path": "test/experiments/results/german/failures_corrected.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "previous_path": "experiments/results/german/failures_legacy_native.json",
+      "current_path": "test/experiments/results/german/failures_legacy_native.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "previous_path": "experiments/results/german/failures_legacy_quartiles.json",
+      "current_path": "test/experiments/results/german/failures_legacy_quartiles.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "previous_path": "experiments/results/german/german_before_after.png",
+      "current_path": "test/experiments/results/german/german_before_after.png",
+      "sha256": "34b5982ca49a93219c71c71da7cf527963618bcb82396030415f73575059e108"
+    },
+    {
+      "previous_path": "experiments/results/german/gwa_hesitation_audit.csv",
+      "current_path": "test/experiments/results/german/gwa_hesitation_audit.csv",
+      "sha256": "189f36a99ef8d2e22385cf98965c88c2b62adc72ebe380255c2ad75f927b9568"
+    },
+    {
+      "previous_path": "experiments/results/german/gwa_hesitation_summary.csv",
+      "current_path": "test/experiments/results/german/gwa_hesitation_summary.csv",
+      "sha256": "fda17851e257b0f2398b8cb54dd352274c849f691b29fb22bf0af2a9d44e6ab7"
+    },
+    {
+      "previous_path": "experiments/results/german/import_corrected.json",
+      "current_path": "test/experiments/results/german/import_corrected.json",
+      "sha256": "12996afba20ff23812ec273b132623b0743504c9b342772404aeeac13c3a8326"
+    },
+    {
+      "previous_path": "experiments/results/german/import_legacy_native.json",
+      "current_path": "test/experiments/results/german/import_legacy_native.json",
+      "sha256": "6025eca737e3ff499fa381ecfd8a7664cae4ddc753334d1f828edc79430acc4e"
+    },
+    {
+      "previous_path": "experiments/results/german/import_legacy_quartiles.json",
+      "current_path": "test/experiments/results/german/import_legacy_quartiles.json",
+      "sha256": "6025eca737e3ff499fa381ecfd8a7664cae4ddc753334d1f828edc79430acc4e"
+    },
+    {
+      "previous_path": "experiments/results/german/interface_consistency_audit.csv",
+      "current_path": "test/experiments/results/german/interface_consistency_audit.csv",
+      "sha256": "018d872f2a387cc77a5afe2b1d1167e8ec084feba02fda41f8935167302a5919"
+    },
+    {
+      "previous_path": "experiments/results/german/interface_gaps.csv",
+      "current_path": "test/experiments/results/german/interface_gaps.csv",
+      "sha256": "af1219d10678743e488422d93852e093002e9fc1c23517d1d1d39b3e3d96968a"
+    },
+    {
+      "previous_path": "experiments/results/german/manifest.json",
+      "current_path": "test/experiments/results/german/manifest.json",
+      "sha256": "4ffb3e47464be2bb1daa24174b33063608966ed9d6fb81f6fa6a0e749dcbbc9e"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_0.json",
+      "current_path": "test/experiments/results/german/metrics_seed_0.json",
+      "sha256": "fbebd1f2fcfe39a64a3df154ceea170adef006a8d1b7511d070345559c5863e1"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_1.json",
+      "current_path": "test/experiments/results/german/metrics_seed_1.json",
+      "sha256": "12df24d262448122c9dddd308c2b6cf748ce5c4af0b03e8346b0e14bf46618c7"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_2.json",
+      "current_path": "test/experiments/results/german/metrics_seed_2.json",
+      "sha256": "643dafd55a4e5468240ac98cc10b3cb9e9d77f5ebc7738710149924ee79beb8b"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_3.json",
+      "current_path": "test/experiments/results/german/metrics_seed_3.json",
+      "sha256": "c75be7656c3a8f87a375f311013546408c1a906dc9f7417b3f4fbe7fd25a4796"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_4.json",
+      "current_path": "test/experiments/results/german/metrics_seed_4.json",
+      "sha256": "cea4484588453410fedac068d8e95c6b8254a36ed0e1129401f1d399a901f632"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_5.json",
+      "current_path": "test/experiments/results/german/metrics_seed_5.json",
+      "sha256": "d1f90720ee9842de45cc2f4a951c03387594107f35b4f79c548de092cd849abe"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_6.json",
+      "current_path": "test/experiments/results/german/metrics_seed_6.json",
+      "sha256": "92e3ef2f6b7b80d1808c7a23b622db68f58df2f355760f8cd851f45a77077b79"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_7.json",
+      "current_path": "test/experiments/results/german/metrics_seed_7.json",
+      "sha256": "e3e5e3fa306c355c126619d150faf609d0d1863841908bb2398a2285a642dbf7"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_8.json",
+      "current_path": "test/experiments/results/german/metrics_seed_8.json",
+      "sha256": "55be37df6d086b1aa35575ceabf0fad1f7d68fdb4a442e809f9d7e468fe4d4f7"
+    },
+    {
+      "previous_path": "experiments/results/german/metrics_seed_9.json",
+      "current_path": "test/experiments/results/german/metrics_seed_9.json",
+      "sha256": "6c998d4445ce4826e3e557cf9c7bddaff523a78eb7d3a58ab327a228ab464241"
+    },
+    {
+      "previous_path": "experiments/results/german/paired_differences.csv",
+      "current_path": "test/experiments/results/german/paired_differences.csv",
+      "sha256": "a82a4c9e8d10a9fda58935880ed712d9746cc1d2676560094cabe8bb994c2e50"
+    },
+    {
+      "previous_path": "experiments/results/german/paired_rank_changes.csv",
+      "current_path": "test/experiments/results/german/paired_rank_changes.csv",
+      "sha256": "9a74610cb4505d4ff7cecdf1a4ac254b2469f1ac6601dc6cee83c4546e731e19"
+    },
+    {
+      "previous_path": "experiments/results/german/paired_scores_audit.csv",
+      "current_path": "test/experiments/results/german/paired_scores_audit.csv",
+      "sha256": "a82a4c9e8d10a9fda58935880ed712d9746cc1d2676560094cabe8bb994c2e50"
+    },
+    {
+      "previous_path": "experiments/results/german/quartile_peaks.json",
+      "current_path": "test/experiments/results/german/quartile_peaks.json",
+      "sha256": "2d7d46d27a333f8e409e44ddd46f0f01328ae17ea483998b583325c5b0b956fd"
+    },
+    {
+      "previous_path": "experiments/results/german/rankings_uniform.csv",
+      "current_path": "test/experiments/results/german/rankings_uniform.csv",
+      "sha256": "26ed6a2d9b415fb5ec73d45fffc5b98a2f5ae3d80c08bada8872a101881ac122"
+    },
+    {
+      "previous_path": "experiments/results/german/raw_metrics.csv",
+      "current_path": "test/experiments/results/german/raw_metrics.csv",
+      "sha256": "f09e973c5cceb206474e2330ea1bbe77f36db9b256808c4e8b49607bc861674e"
+    },
+    {
+      "previous_path": "experiments/results/german/scores.csv",
+      "current_path": "test/experiments/results/german/scores.csv",
+      "sha256": "46a4c673dd7b0b1f3cb37342f06171c661ec26941a2ab2980efa691774239c18"
+    },
+    {
+      "previous_path": "experiments/results/german/scores_corrected.csv",
+      "current_path": "test/experiments/results/german/scores_corrected.csv",
+      "sha256": "e27d78a75c0bb3d57625ef7025c5ffc38053a501cf506d4d8dce3e6c07317741"
+    },
+    {
+      "previous_path": "experiments/results/german/scores_legacy_native.csv",
+      "current_path": "test/experiments/results/german/scores_legacy_native.csv",
+      "sha256": "634d458a1bb65285f1091b18021594f47b7c27438942c479d5040a93d399ef1b"
+    },
+    {
+      "previous_path": "experiments/results/german/scores_legacy_quartiles.csv",
+      "current_path": "test/experiments/results/german/scores_legacy_quartiles.csv",
+      "sha256": "5cd473be241932d7525779ce9431d61a232106bd9e529f68f18413bc3ee6e0c0"
+    },
+    {
+      "previous_path": "experiments/results/german/sl_weight_sensitivity.csv",
+      "current_path": "test/experiments/results/german/sl_weight_sensitivity.csv",
+      "sha256": "c69650fc8eefdcfa99b9aa89b5eb193d12ddb241a3620a0209dc7fc8ef0d78ca"
+    },
+    {
+      "previous_path": "experiments/results/german/summary_uniform.csv",
+      "current_path": "test/experiments/results/german/summary_uniform.csv",
+      "sha256": "2bb18fcd9b17df713280fe2eeae0ee3bb192b3dd9fbe61a2a244fb0026ec976d"
+    },
+    {
+      "previous_path": "experiments/results/german/tests_baseline.txt",
+      "current_path": "test/experiments/results/german/tests_baseline.txt",
+      "sha256": "7e5e84ca81305dfd3f9b32c5c5a05b3a0b108405ad42ece5a9d7f10293350fd6"
+    },
+    {
+      "previous_path": "experiments/results/german/tests_corrected.txt",
+      "current_path": "test/experiments/results/german/tests_corrected.txt",
+      "sha256": "4784d35a660a7ad9138474982b26e0baf0de2fcfdef40708c3de4982ef478812"
+    },
+    {
+      "previous_path": "experiments/results/german/verification.json",
+      "current_path": "test/experiments/results/german/verification.json",
+      "sha256": "a701c20dc2117fa793574f662d84e9e00970824d900ce046445bd50f1d68a3c4"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/audit_summary.json",
+      "current_path": "test/experiments/results/german_ec_kl/audit_summary.json",
+      "sha256": "0f93824980a5c5607ef525fd8b52b8d5d3af1dab767de7eab43964d0b3747709"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/comparison_by_model.csv",
+      "current_path": "test/experiments/results/german_ec_kl/comparison_by_model.csv",
+      "sha256": "51d966aa0552ceac9a4aedb82befd59b84c1dbe07408acbcb113d9e7572cae4e"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/comparison_by_operator.csv",
+      "current_path": "test/experiments/results/german_ec_kl/comparison_by_operator.csv",
+      "sha256": "53d8ce9f25acb4d28075625454248074825fcfbe4c3d7be85076df1d64890734"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/details_corrected.jsonl.gz",
+      "current_path": "test/experiments/results/german_ec_kl/details_corrected.jsonl.gz",
+      "sha256": "0f605fafcb4bcfc366f0b3a7ad69d863789a2c1cce5f782921fb8ea90ab60992"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/details_legacy_native.jsonl.gz",
+      "current_path": "test/experiments/results/german_ec_kl/details_legacy_native.jsonl.gz",
+      "sha256": "4a39438a18ce763d1877d50a65c2373ad8e2904379ce87028f77e027c7195529"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/details_legacy_quartiles.jsonl.gz",
+      "current_path": "test/experiments/results/german_ec_kl/details_legacy_quartiles.jsonl.gz",
+      "sha256": "cca1a4e2d4e1104c0f465c0a94426d947bc5953f672c0f08e12e40ba1897ee35"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/ec_comparison_by_model.csv",
+      "current_path": "test/experiments/results/german_ec_kl/ec_comparison_by_model.csv",
+      "sha256": "a77f7817e0107bd92b34f3cba2befaab0729230fddeed2a7e109abb207764899"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/ec_correction_comparison.png",
+      "current_path": "test/experiments/results/german_ec_kl/ec_correction_comparison.png",
+      "sha256": "f184c371858ad231281db1d0b420db48e63589f9978bfce6fd99ace7ae45e4ea"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/ec_correction_summary.json",
+      "current_path": "test/experiments/results/german_ec_kl/ec_correction_summary.json",
+      "sha256": "0bdca1baeb6c3e01240ffff798980a4000fad8459c938eb6640d5a03851e4df1"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/ec_metric_pairs.csv",
+      "current_path": "test/experiments/results/german_ec_kl/ec_metric_pairs.csv",
+      "sha256": "11a621d3553d594d4bda05c70dbae8afef33bcdf741742f216e25ba8d873ee55"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/ec_score_comparison.csv",
+      "current_path": "test/experiments/results/german_ec_kl/ec_score_comparison.csv",
+      "sha256": "bdca7dfeefb08a42e01a6eea7a6fb566ae5af8a9b94b733ac194874da8e01efd"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/ec_score_dispersion.csv",
+      "current_path": "test/experiments/results/german_ec_kl/ec_score_dispersion.csv",
+      "sha256": "672c933066f2989ecac5b3ceb42b938e416946cde0d44bb45b69bfcd44f5e4bb"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/ec_score_pairs.csv",
+      "current_path": "test/experiments/results/german_ec_kl/ec_score_pairs.csv",
+      "sha256": "c8a49510182ce7cbdc1f36ef3631e038de0448612f648b2c687ae511275faf0f"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/effective_complexity_audit.csv",
+      "current_path": "test/experiments/results/german_ec_kl/effective_complexity_audit.csv",
+      "sha256": "a8bbf17ec9219cd79d98ca0e6765321ffa70f6880544092322bb8570504a8ce3"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/effective_complexity_diagnostics.csv",
+      "current_path": "test/experiments/results/german_ec_kl/effective_complexity_diagnostics.csv",
+      "sha256": "2feef3be33523d2691fca6e7e2769dd7707863049d676ccd76d27590dcd69c56"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/environment-freeze.txt",
+      "current_path": "test/experiments/results/german_ec_kl/environment-freeze.txt",
+      "sha256": "55da2595706a630b9759450fa95fc7435f12b34b6882dcd4af23c6445cc8f377"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/failures_corrected.json",
+      "current_path": "test/experiments/results/german_ec_kl/failures_corrected.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/failures_legacy_native.json",
+      "current_path": "test/experiments/results/german_ec_kl/failures_legacy_native.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/failures_legacy_quartiles.json",
+      "current_path": "test/experiments/results/german_ec_kl/failures_legacy_quartiles.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/german_before_after.png",
+      "current_path": "test/experiments/results/german_ec_kl/german_before_after.png",
+      "sha256": "73beded9cc6c3a72cf485f9b0bb1c0d731089476ce740cf015bde28f03726942"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/gwa_hesitation_audit.csv",
+      "current_path": "test/experiments/results/german_ec_kl/gwa_hesitation_audit.csv",
+      "sha256": "7685809461390773a1627967385174f5570bbebd43fe4b667d4f17ef089b04b9"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/gwa_hesitation_summary.csv",
+      "current_path": "test/experiments/results/german_ec_kl/gwa_hesitation_summary.csv",
+      "sha256": "c3649738b0e8ec96d3cd8cdbdc7dd1a3a5724621833a056e64d6cafd5622d66f"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/import_corrected.json",
+      "current_path": "test/experiments/results/german_ec_kl/import_corrected.json",
+      "sha256": "12996afba20ff23812ec273b132623b0743504c9b342772404aeeac13c3a8326"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/import_legacy_native.json",
+      "current_path": "test/experiments/results/german_ec_kl/import_legacy_native.json",
+      "sha256": "6025eca737e3ff499fa381ecfd8a7664cae4ddc753334d1f828edc79430acc4e"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/import_legacy_quartiles.json",
+      "current_path": "test/experiments/results/german_ec_kl/import_legacy_quartiles.json",
+      "sha256": "6025eca737e3ff499fa381ecfd8a7664cae4ddc753334d1f828edc79430acc4e"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/interface_consistency_audit.csv",
+      "current_path": "test/experiments/results/german_ec_kl/interface_consistency_audit.csv",
+      "sha256": "613f554e4ab17f26e56a9b678d83858bc5b4b16a8cbd9010566d769ed9bae4c7"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/interface_gaps.csv",
+      "current_path": "test/experiments/results/german_ec_kl/interface_gaps.csv",
+      "sha256": "6cf5f5b44329eb8b653157f9cdd1e07d36f9bb55430fe12c66e133f6b4b94da1"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/manifest.json",
+      "current_path": "test/experiments/results/german_ec_kl/manifest.json",
+      "sha256": "bc0eca0c656c04d6c3eee31b49fa0688fde3b070bfd72fccf6384f30dbb6e8b8"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_0.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_0.json",
+      "sha256": "0292379934ac9581fcec79f36c8b41d99d7ec08a128ef26892fac2181dd7a419"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_1.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_1.json",
+      "sha256": "8057fbf1fcd44d73f6254c538d96cd1f8c53a4c262058bf8bd4e6d9ce8e04ae3"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_2.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_2.json",
+      "sha256": "c2a5740382c053b87407474dedbe95412cb5f94940e55342ba53841c8e8565cc"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_3.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_3.json",
+      "sha256": "fa66ff475b091d2b951871e25b59a3cceea491bd4e7f9a2a8829a98ea3335e3d"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_4.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_4.json",
+      "sha256": "257f510644c1331db0a8541fb7a005415a2b2dc78490721dedc3f98a26778878"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_5.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_5.json",
+      "sha256": "5f37523b98f742a8112afdb2dd63bce611b2b7593a6119a4f8b040b1d132ccea"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_6.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_6.json",
+      "sha256": "7e20336b2dbead9f530b4b9c54a9bc0e5805c384cce93b4ea05c370eb2f8a0b8"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_7.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_7.json",
+      "sha256": "c6b45338d6ab3525b8b5265397913989ce2302da4e563afcac22405d92f4354f"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_8.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_8.json",
+      "sha256": "9518b20b00bcef3ddbe75f895871859bfcba651f4673bd2dab58abb2349f6247"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/metrics_seed_9.json",
+      "current_path": "test/experiments/results/german_ec_kl/metrics_seed_9.json",
+      "sha256": "b4ae606dfd410524e24b79f63fef3fcc03da9fbe3b719a97c5247ae88d07634c"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/paired_differences.csv",
+      "current_path": "test/experiments/results/german_ec_kl/paired_differences.csv",
+      "sha256": "44edad7c3a61bfc713de47f268a5a1817c570c7faaf5b7a88bc280d037dcc08d"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/paired_rank_changes.csv",
+      "current_path": "test/experiments/results/german_ec_kl/paired_rank_changes.csv",
+      "sha256": "67c95c6d69ce5688754d7fcef0dfedbe84e5a87ff2e4e6b97fe58e7c807d5498"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/paired_scores_audit.csv",
+      "current_path": "test/experiments/results/german_ec_kl/paired_scores_audit.csv",
+      "sha256": "44edad7c3a61bfc713de47f268a5a1817c570c7faaf5b7a88bc280d037dcc08d"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/quartile_peaks.json",
+      "current_path": "test/experiments/results/german_ec_kl/quartile_peaks.json",
+      "sha256": "89db7955005a77c12ef01916443438a06aeb48091cd2020a289d49adb93207bf"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/rankings_uniform.csv",
+      "current_path": "test/experiments/results/german_ec_kl/rankings_uniform.csv",
+      "sha256": "056f964181ddf98b94a97679ac3c94ea628d6cfe1df9690c0f0aa5daab567c29"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/raw_metrics.csv",
+      "current_path": "test/experiments/results/german_ec_kl/raw_metrics.csv",
+      "sha256": "3b1f43ac5a0f1573827846d20a514f0a3d2e97e35764f6c7a9389362f9784bbd"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/scores.csv",
+      "current_path": "test/experiments/results/german_ec_kl/scores.csv",
+      "sha256": "e403d8752b65c11b98a74abbb47c28895c0e3cc42ffdf37342eb7e46d39db537"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/scores_corrected.csv",
+      "current_path": "test/experiments/results/german_ec_kl/scores_corrected.csv",
+      "sha256": "f8aa75bde13a10cc2ad809ec95319d9e7f11121a4aa8da9ef9aefd9b431bf9d5"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/scores_legacy_native.csv",
+      "current_path": "test/experiments/results/german_ec_kl/scores_legacy_native.csv",
+      "sha256": "14e8b12333fd91735f7c3ecf879e5a8c1cd945f8d397c11df927df5a991cf01a"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/scores_legacy_quartiles.csv",
+      "current_path": "test/experiments/results/german_ec_kl/scores_legacy_quartiles.csv",
+      "sha256": "1b359a33fcd2755273a2f677701ec2117d9fb54ae112bd6ca4f129cb1bd4773c"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/sl_weight_sensitivity.csv",
+      "current_path": "test/experiments/results/german_ec_kl/sl_weight_sensitivity.csv",
+      "sha256": "01a442e8027266ebbf7e36f33674429bfb47853737ab6bbb08aeefac46846982"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/summary_uniform.csv",
+      "current_path": "test/experiments/results/german_ec_kl/summary_uniform.csv",
+      "sha256": "adf4385c0b552c228bea2cceb473cd4b60fcb58888c98104a49f855e9c3b2a2d"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/tests_corrected.txt",
+      "current_path": "test/experiments/results/german_ec_kl/tests_corrected.txt",
+      "sha256": "f6cd4fd69f5d5fbb061b79e4d62e7d7275b3129f4dd696ef601e766b74165f5c"
+    },
+    {
+      "previous_path": "experiments/results/german_ec_kl/verification.json",
+      "current_path": "test/experiments/results/german_ec_kl/verification.json",
+      "sha256": "c60de68c96e55e6013f0e46c6c6eecaa935bc4d1982608de81f836a1377f1504"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/environment-freeze.txt",
+      "current_path": "test/experiments/results/german_final_surrogate/environment-freeze.txt",
+      "sha256": "7d0158b3aee719a63e40108dc74567d4461ca17f02ef1c626b081755a7972cd1"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/example_sl.txt",
+      "current_path": "test/experiments/results/german_final_surrogate/example_sl.txt",
+      "sha256": "99738a4a0924131b87578c61b2d7ce9c0d882c3004da5071072f2bb683ac633f"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/execution.txt",
+      "current_path": "test/experiments/results/german_final_surrogate/execution.txt",
+      "sha256": "b5266950cb931151931b0c15a51e77a891bd5881ee2f3897f159bd45825fca09"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/fidelity.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/fidelity.csv",
+      "sha256": "8805ebb16e327d2a88139ec38952b29ab6c978ff7c6dcc05c65b5c3380ce8417"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/full_flow_selections.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/full_flow_selections.csv",
+      "sha256": "6c1fc99d7ed42f34c902a6b6f5526226c384174032707bb9b85836fd6d7ec697"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/german_final_surrogate.png",
+      "current_path": "test/experiments/results/german_final_surrogate/german_final_surrogate.png",
+      "sha256": "fff7065f593ecfae5af76f56afcca06cc8f3141025160a925bf13b3103466b64"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/historical_predictive_comparison.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/historical_predictive_comparison.csv",
+      "sha256": "acc94bb40dd8a956d1deb86cbc0909779e5cdc859d08eb0fd71e89479a9d3ee0"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/historical_teacher_audit.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/historical_teacher_audit.csv",
+      "sha256": "56af6eedb6204b0de8a96cccfa5379239dca1245cb62740978640dab2cf841a4"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/interpretation.json",
+      "current_path": "test/experiments/results/german_final_surrogate/interpretation.json",
+      "sha256": "d18bbe0a5a0c8487c2f8a82ccdeb8fbfb269d747e33e200c70ed27f581ddeec8"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/manifest.json",
+      "current_path": "test/experiments/results/german_final_surrogate/manifest.json",
+      "sha256": "88b8b75221a9a760fa5976e88881d0bc5b232b8b7f89c4449e01669884f12c9e"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/mechanism_rankings.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/mechanism_rankings.csv",
+      "sha256": "a67197e84f2d7727eac8a60e851f86b1c271d53b2ab723ac335cbb6671557162"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/mechanism_scores.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/mechanism_scores.csv",
+      "sha256": "be800dd61c49e362f15c7977b8afe1ef26eaa5466ac26b5be44f4d34a2bd365e"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/mechanisms_by_model.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/mechanisms_by_model.csv",
+      "sha256": "68a4a4e3ef4d173578eaeefc0bc4679b5bb7b0a21c7cff3c3c9304aaa7eb2113"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/metrics_by_model.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/metrics_by_model.csv",
+      "sha256": "9c8a32ad99db228c8a7bbfe5ac89cd7833d5fdd100ee7a8d3ee1379abd5e3d61"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/protocol_comparison.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/protocol_comparison.csv",
+      "sha256": "2b1733b0ef4fe860c7411a1e1215e34594da583b889109f5d4ce99d8a26aabc2"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/rank_agreement.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/rank_agreement.csv",
+      "sha256": "c8280211d3a7f6bbfe5ee5f3b9049827032cc5196d72bc5bb800cc77f014c1c0"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/raw_metrics.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/raw_metrics.csv",
+      "sha256": "46214fc267ff2d583834847e1b26b8769fc7153f88669d80151f6ab6ec49a6ab"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/reference_metrics.csv",
+      "current_path": "test/experiments/results/german_final_surrogate/reference_metrics.csv",
+      "sha256": "8bc38871fddafbba846018cc1651f9edcfdfe88bb817cae6bc5b26bf17bc855c"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_0.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_0.json",
+      "sha256": "dba0795d7006fab229b898cfbe60e596f84ebff12324c4a178bf91f9e51207b9"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_1.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_1.json",
+      "sha256": "a065b0aafc68e0171b6fe715b6105f1d2c0a41109e23e1920cc0bbc98a154956"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_2.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_2.json",
+      "sha256": "306674f9f7bc5c99368bec5cf4109c0bc49b6f44817014eb8250b003d2181f74"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_3.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_3.json",
+      "sha256": "05db9e4c725db0975004c37cce9c7117a60d8d088d42bb6fb9842ea6750b45cd"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_4.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_4.json",
+      "sha256": "262c8961c0b4aee11abba835d2a92d9e5e94e5211a4c824a51afe0e64692c07a"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_5.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_5.json",
+      "sha256": "7e0ea29c1f4a16184e048a7e9ba5cb50967105fac8aaa8843e108b29ca03e90f"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_6.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_6.json",
+      "sha256": "bf92e20e4134e28907eda6a496cbcd8dee80e3a600d437ea846637580a03c8ac"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_7.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_7.json",
+      "sha256": "811fa5461848acfa5b78bbe84dadfa9e45e5eedcd451100855f629c9cddf4fd4"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_8.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_8.json",
+      "sha256": "e186256ad5ef4d6eed2099675648dad986931484af58cf2447a4d0296e63630a"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/seed_9.json",
+      "current_path": "test/experiments/results/german_final_surrogate/seed_9.json",
+      "sha256": "ca10db80f89b12069fcd704dad55d81599f8681b81856df16f8e13ece17cba92"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/summary.json",
+      "current_path": "test/experiments/results/german_final_surrogate/summary.json",
+      "sha256": "a4db5c36aa2bcea04ca5ad2d0d415e80eedd5b6512fcea7d1d5e2ee2934dcecb"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/tests_complete.txt",
+      "current_path": "test/experiments/results/german_final_surrogate/tests_complete.txt",
+      "sha256": "15b88dda5a14b2643dee62673d432a5472272a21070b15aa9d843c5473c7c51d"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/tests_core.txt",
+      "current_path": "test/experiments/results/german_final_surrogate/tests_core.txt",
+      "sha256": "fb6d22238f9234c8431e9cacbbd6f40d5c736667f6cfb64d90fb38f215b8831c"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/tests_core_environment.json",
+      "current_path": "test/experiments/results/german_final_surrogate/tests_core_environment.json",
+      "sha256": "ca5296a54f7312d61f6dea95a800288340c5b1ed02c2862e9ebfb3d8d005eba2"
+    },
+    {
+      "previous_path": "experiments/results/german_final_surrogate/verification.json",
+      "current_path": "test/experiments/results/german_final_surrogate/verification.json",
+      "sha256": "fec2a55085f3a0f76f7c8a70dc186d8dc3c99c2a5b15d0c3346437c82e09e53e"
+    }
+  ]
+}

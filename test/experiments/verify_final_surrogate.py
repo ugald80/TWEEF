@@ -1,6 +1,9 @@
 """Audit a completed German final-surrogate experiment without retraining.
 
-Run with --verify to write verification.json, including failures. Source hashes,
+Run with --verify to write an audit report, including failures. Existing original
+verification.json files are preserved. Use --archived-source after a layout-only
+move to verify original source and evidence from Git and write a separate
+relocation_verification.json. Source hashes,
 cached metrics, CV choices, principal exported tables and prediction consistency
 are checked. EC perturbations cannot be replayed without fitted models; this
 auditor checks the saved loss curves and their declared original-variable unit.
@@ -8,22 +11,24 @@ auditor checks the saved loss curves and their declared original-variable unit.
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import importlib.metadata
 import itertools
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from experiments.german_final_surrogate import (
+from test.experiments.german_final_surrogate import (
     DEFAULT_WEIGHTS, METRICS, MODEL_ORDER, PACKAGES, PROTOCOL, DATASET,
     digest, fitted_estimator, load_german, mechanism_scores, select_by_cv,
     source_fingerprint, weight_configurations, write_json,
@@ -42,6 +47,101 @@ def validate_source_hashes(root, recorded):
         require(path.is_relative_to(Path(root).resolve()), f"Source path escapes repository: {name}")
         require(path.is_file(), f"Missing source file: {name}")
         require(hashlib.sha256(path.read_bytes()).hexdigest() == expected, f"Source hash mismatch: {name}")
+
+
+def _git_blob(root, commit, name):
+    require(bool(re.fullmatch(r"[0-9a-f]{40,64}", commit)), "Invalid recorded Git commit")
+    relative = Path(name)
+    require(not relative.is_absolute() and ".." not in relative.parts, f"Archived path escapes repository: {name}")
+    return subprocess.run(["git", "show", f"{commit}:{relative.as_posix()}"], cwd=root,
+                          capture_output=True, check=True).stdout
+
+
+def validate_archived_source_hashes(root, recorded, source_commit):
+    """Validate executed Git blobs and the unchanged computational package."""
+    require(isinstance(recorded, dict) and bool(recorded), "Missing archived source fingerprint")
+    root = Path(root).resolve()
+    current_core = {str(path.relative_to(root)) for path in (root / "TWEEF").glob("*.py")}
+    archived_core = {name for name in recorded if name.startswith("TWEEF/")}
+    require(current_core == archived_core, "Current core source inventory differs from the archived experiment")
+    for name, expected in recorded.items():
+        saved = _git_blob(root, source_commit, name)
+        require(hashlib.sha256(saved).hexdigest() == expected, f"Archived Git source hash mismatch: {name}")
+        if name.startswith("TWEEF/"):
+            path = (root / name).resolve()
+            require(path.is_relative_to(root), f"Source path escapes repository: {name}")
+            require(hashlib.sha256(path.read_bytes()).hexdigest() == expected, f"Current core source differs from archived source: {name}")
+
+
+def validate_relocated_helpers(root, source_commit):
+    """Only import/layout paths may change in the audit's numerical helpers."""
+    for old_name, functions in (
+        ("experiments/german_final_surrogate.py", (
+            "mechanism", "fitted_estimator", "mechanism_scores", "select_by_cv", "weight_configurations",
+        )),
+        ("experiments/german_aggregation.py", ("load_german",)),
+    ):
+        original = ast.parse(_git_blob(root, source_commit, old_name).decode("utf-8"))
+        current = ast.parse((Path(root) / "test" / old_name).read_text())
+        for name in functions:
+            before = next((node for node in original.body if isinstance(node, ast.FunctionDef) and node.name == name), None)
+            after = next((node for node in current.body if isinstance(node, ast.FunctionDef) and node.name == name), None)
+            require(before is not None and after is not None, f"Missing archived recomputation helper: {name}")
+            require(ast.dump(before, include_attributes=False) == ast.dump(after, include_attributes=False),
+                    f"Recomputation helper changed beyond relocation: {name}")
+
+
+def relocated_artifact_path(root, output, recorded_name):
+    relative = Path(recorded_name)
+    require(not relative.is_absolute() and ".." not in relative.parts,
+            f"Recorded artifact path escapes its directory: {recorded_name}")
+    if relative.parts[:2] == ("experiments", "results"):
+        base = Path(root).resolve()
+        path = (base / "test" / relative).resolve()
+    else:
+        base = Path(output).resolve()
+        path = (base / relative).resolve()
+    require(path.is_relative_to(base), f"Recorded artifact path escapes its directory: {recorded_name}")
+    return path
+
+
+def validate_recorded_artifacts(root, output, recorded):
+    require(isinstance(recorded, dict) and bool(recorded), "Original artifact hashes are missing")
+    for name, expected in recorded.items():
+        path = relocated_artifact_path(root, output, name)
+        require(path.is_file(), f"Missing relocated artifact: {name}")
+        require(hashlib.sha256(path.read_bytes()).hexdigest() == expected, f"Relocated artifact hash mismatch: {name}")
+
+
+def original_verification_commit(root, source_commit, recorded_path):
+    """Choose the first original evidence commit, rather than a later rewrite."""
+    require(bool(re.fullmatch(r"[0-9a-f]{40,64}", source_commit)), "Invalid recorded Git commit")
+    commits = subprocess.run(
+        ["git", "log", "--reverse", "--format=%H", f"{source_commit}..HEAD", "--", recorded_path],
+        cwd=root, capture_output=True, text=True, check=True,
+    ).stdout.splitlines()
+    for commit in commits:
+        try:
+            _git_blob(root, commit, recorded_path)
+        except subprocess.CalledProcessError:
+            continue
+        return commit
+    raise ValueError("Original verification evidence was not found in Git history")
+
+
+def audit_original_evidence(audit, manifest):
+    recorded_path = "experiments/results/german_final_surrogate/verification.json"
+    commit = original_verification_commit(ROOT, manifest["source_commit_at_start"], recorded_path)
+    original = _git_blob(ROOT, commit, recorded_path)
+    require(audit.read("verification.json") == original, "Original verification.json differs from its first Git evidence")
+    evidence = json.loads(original)
+    require(evidence.get("passed") is True, "Original verification did not pass")
+    original_verifier = _git_blob(ROOT, commit, "experiments/verify_final_surrogate.py")
+    require(hashlib.sha256(original_verifier).hexdigest() == evidence["verifier_sha256"],
+            "Original verifier does not match its recorded Git evidence")
+    validate_recorded_artifacts(ROOT, audit.output, evidence["artifacts_sha256"])
+    audit.archived_evidence = {"commit": commit, "verification_path": recorded_path,
+                               "verification_sha256": hashlib.sha256(original).hexdigest()}
 
 
 def validate_predictions(case, n_rows=200):
@@ -115,10 +215,12 @@ def check_ec(case, protocol, names):
 
 
 class Audit:
-    def __init__(self, output):
+    def __init__(self, output, *, archived_source=False):
         self.output = Path(output).resolve()
         self.checks = []
         self.artifacts = {}
+        self.archived_source = archived_source
+        self.archived_evidence = None
 
     def run(self, name, function):
         try:
@@ -149,6 +251,8 @@ class Audit:
             "output": str(self.output),
             "verifier_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "checks": self.checks, "artifacts_sha256": self.artifacts,
+            "source_mode": "archived" if self.archived_source else "current",
+            "archived_evidence": self.archived_evidence,
             "limits": "Recomputes aggregation/CV selection and saved prediction consistency; does not refit models or regenerate EC perturbation predictions.",
         }
 
@@ -166,9 +270,13 @@ def frame_matches(actual, expected, keys):
 def audit_sources(audit, manifest):
     protocol = manifest["protocol"]
     require(manifest["protocol_sha256"] == digest(protocol), "Protocol digest mismatch")
-    require(protocol["source_sha256"] == source_fingerprint(), "Current source fingerprint differs from the experiment")
-    validate_source_hashes(ROOT, protocol["source_sha256"])
     source_commit = manifest["source_commit_at_start"]
+    if audit.archived_source:
+        validate_archived_source_hashes(ROOT, protocol["source_sha256"], source_commit)
+        validate_relocated_helpers(ROOT, source_commit)
+    else:
+        require(protocol["source_sha256"] == source_fingerprint(), "Current source fingerprint differs from the experiment")
+        validate_source_hashes(ROOT, protocol["source_sha256"])
     ancestor = subprocess.run(["git", "merge-base", "--is-ancestor", source_commit, "HEAD"], cwd=ROOT)
     require(ancestor.returncode == 0, "HEAD does not descend from the recorded source commit")
     for name, expected in protocol["source_sha256"].items():
@@ -319,7 +427,7 @@ def audit_historical(audit, payloads):
     require(len(table) == 80 and not table.duplicated(["seed", "model"]).any(), "Historical teacher audit is incomplete")
     require(table.teacher_predictions_identical.eq(True).all() and table.split_indices_identical.eq(True).all(), "Historical teachers or splits changed")
     for payload in payloads:
-        path = ROOT / "experiments/results/german_ec_kl" / f"metrics_seed_{payload['seed']}.json"
+        path = ROOT / "test/experiments/results/german_ec_kl" / f"metrics_seed_{payload['seed']}.json"
         original = path.read_bytes()
         audit.artifacts[str(path.relative_to(ROOT))] = hashlib.sha256(original).hexdigest()
         historical = json.loads(original)
@@ -328,14 +436,16 @@ def audit_historical(audit, payloads):
             require(historical["models"][model]["test"]["predictions"] == payload["teachers"][model]["predictions"], "Historical teacher prediction cache differs")
 
 
-def verify(output):
-    audit = Audit(output)
+def verify(output, *, archived_source=False):
+    audit = Audit(output, archived_source=archived_source)
     summary = audit.run("completed_summary", lambda: audit.json("summary.json"))
     manifest = audit.run("manifest", lambda: audit.json("manifest.json"))
     if summary is None or manifest is None:
         return audit.result()
     protocol = manifest["protocol"]
     audit.run("complete_main_protocol", lambda: audit_protocol(protocol))
+    if archived_source:
+        audit.run("original_git_verification_and_artifact_identity", lambda: audit_original_evidence(audit, manifest))
     audit.run("source_identity_and_environment", lambda: audit_sources(audit, manifest))
     X, y, groups = load_german()
     payloads = []
@@ -352,24 +462,38 @@ def verify(output):
     audit.run("completed_main_counts", completed_counts)
     audit.run("exported_tables_and_mechanism_recomputation", lambda: audit_exports(audit, payloads))
     audit.run("historical_teacher_and_split_identity", lambda: audit_historical(audit, payloads))
-    audit.run("source_still_matches_after_audit", lambda: validate_source_hashes(ROOT, protocol["source_sha256"]))
+    if archived_source:
+        audit.run("source_still_matches_after_audit", lambda: (
+            validate_archived_source_hashes(ROOT, protocol["source_sha256"], manifest["source_commit_at_start"]),
+            validate_relocated_helpers(ROOT, manifest["source_commit_at_start"]),
+        ))
+    else:
+        audit.run("source_still_matches_after_audit", lambda: validate_source_hashes(ROOT, protocol["source_sha256"]))
     return audit.result()
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "experiments/results/german_final_surrogate")
-    parser.add_argument("--verify", action="store_true", help="Write verification.json, including failures")
+    parser.add_argument("--output", type=Path, default=ROOT / "test/experiments/results/german_final_surrogate")
+    parser.add_argument("--verify", action="store_true", help="Write an audit report without replacing original verification evidence")
+    parser.add_argument("--archived-source", action="store_true",
+                        help="Audit relocated results against original Git source and evidence; write relocation_verification.json")
     args = parser.parse_args(argv)
     try:
-        result = verify(args.output)
+        result = verify(args.output, archived_source=args.archived_source)
     except Exception as error:
-        audit = Audit(args.output)
+        audit = Audit(args.output, archived_source=args.archived_source)
         audit.run("audit_setup", lambda: (_ for _ in ()).throw(error))
         result = audit.result()
     if args.verify:
         args.output.mkdir(parents=True, exist_ok=True)
-        write_json(args.output / "verification.json", result)
+        if args.archived_source:
+            filename = "relocation_verification.json"
+        elif (args.output / "verification.json").exists():
+            filename = "verification_current.json"
+        else:
+            filename = "verification.json"
+        write_json(args.output / filename, result)
     failed = [check for check in result["checks"] if not check["passed"]]
     print(json.dumps({"passed": result["passed"], "checks": len(result["checks"]), "failures": failed}, indent=2))
     return 0 if result["passed"] else 1

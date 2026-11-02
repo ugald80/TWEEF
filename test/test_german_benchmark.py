@@ -1,7 +1,7 @@
 """Cheap protocol checks; training the eight models belongs to the benchmark CLI."""
 import numpy as np
 import pandas as pd
-from experiments.german_aggregation import (
+from test.experiments.german_aggregation import (
     BinaryLinearRegression, load_german, make_preprocessor, make_split,
 )
 

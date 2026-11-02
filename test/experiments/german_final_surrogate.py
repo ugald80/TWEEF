@@ -25,10 +25,10 @@ os.environ.setdefault("MPLCONFIGDIR", "/tmp/tweef-final-surrogate-matplotlib")
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from experiments.german_aggregation import DATASET, METRICS, load_german, make_preprocessor, make_split, models
+from test.experiments.german_aggregation import DATASET, METRICS, load_german, make_preprocessor, make_split, models
 
 PROTOCOL = "german-final-surrogate-original-features-v1"
 MODEL_ORDER = ["DT", "RF", "ET", "LR", "L-SVM", "AB", "GB", "XGB"]
@@ -81,7 +81,7 @@ def digest(value):
 
 
 def source_fingerprint():
-    files = sorted((ROOT / "TWEEF").glob("*.py")) + [Path(__file__).resolve(), ROOT / "experiments/german_aggregation.py"]
+    files = sorted((ROOT / "TWEEF").glob("*.py")) + [Path(__file__).resolve(), ROOT / "test/experiments/german_aggregation.py"]
     return {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest() for path in files}
 
 
@@ -357,7 +357,7 @@ def protocol_comparison(output, metrics, protocol):
         ("Comparison", "Aggregation on original-model metrics", "Fixed final-predictor estimation and CV-only candidate selection"),
     ]
     pd.DataFrame(rows, columns=["aspect", "historical_german_ec_kl", "new_protocol"]).to_csv(output / "protocol_comparison.csv", index=False)
-    historical = ROOT / "experiments/results/german_ec_kl"
+    historical = ROOT / "test/experiments/results/german_ec_kl"
     audit = []
     for seed in protocol["seeds"]:
         path = historical / f"metrics_seed_{seed}.json"
@@ -414,7 +414,7 @@ def plot_results(output, metrics, scores):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "experiments/results/german_final_surrogate")
+    parser.add_argument("--output", type=Path, default=ROOT / "test/experiments/results/german_final_surrogate")
     parser.add_argument("--seeds", nargs="+", type=int, default=list(range(10)))
     parser.add_argument("--models", nargs="+", choices=MODEL_ORDER, default=MODEL_ORDER)
     parser.add_argument("--candidate-rounds", nargs="+", type=int, default=[100, 500])

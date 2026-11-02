@@ -13,8 +13,8 @@ if os.environ.get("TWEEF_RUN_INTEGRATION") != "1":
 
 
 def test_real_german_final_surrogate_can_be_deployed():
-    from experiments.example_final_surrogate import main
-    from experiments.german_aggregation import load_german
+    from test.experiments.example_final_surrogate import main
+    from test.experiments.german_aggregation import load_german
 
     workflow, report = main(["--max-rounds", "50", "--postprocess"])
     X, _, groups = load_german()

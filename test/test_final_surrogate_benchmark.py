@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from experiments.german_final_surrogate import (
+from test.experiments.german_final_surrogate import (
     METRICS, parse_args, prepare_output, select_by_cv, weight_configurations,
     snapshot_parameters, write_json,
 )

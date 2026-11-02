@@ -4,7 +4,7 @@ import json
 import numpy as np
 import pytest
 
-from experiments.german_aggregation import probability_entropy, validate_metric_cache, validate_output_protocol
+from test.experiments.german_aggregation import probability_entropy, validate_metric_cache, validate_output_protocol
 
 
 def test_historical_manifest_is_preserved_on_protocol_mismatch(tmp_path):

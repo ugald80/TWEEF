@@ -3,7 +3,7 @@
 Train each model once per seed, cache metric matrices, then execute the real legacy
 and corrected TWEEF modules in isolated subprocesses. The enhancement/surrogate
 pipeline is intentionally absent: every aggregation comparison has identical input
-metrics. Run ``python experiments/german_aggregation.py --help`` for usage.
+metrics. Run ``python test/experiments/german_aggregation.py --help`` for usage.
 """
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils.validation import check_is_fitted
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DATASET = ROOT / "test/datasets/german.csv"
 METRICS = ["Accuracy", "equal Opportunity", "Effective Complexity"]
 PEAKS = ["peak_-2", "peak_-1", "peak_0", "peak_1", "peak_2"]
@@ -386,7 +386,7 @@ def summarize(output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seeds", nargs="+", type=int, default=list(range(10)))
-    parser.add_argument("--output", type=Path, default=ROOT / "experiments/results/german_ec_kl")
+    parser.add_argument("--output", type=Path, default=ROOT / "test/experiments/results/german_ec_kl")
     parser.add_argument("--baseline-root", type=Path)
     parser.add_argument("--reuse-metrics", action="store_true")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)

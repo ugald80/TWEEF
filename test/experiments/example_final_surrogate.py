@@ -1,9 +1,9 @@
 """Executable example of the final-surrogate API and a user-supplied mechanism.
 
-Run from the checkout: python experiments/example_final_surrogate.py
+Run from the checkout: python test/experiments/example_final_surrogate.py
 For built-in SL, supply the training-only pooled reference from the benchmark:
-  python experiments/example_final_surrogate.py --operator sl \
-    --reference experiments/results/german_final_surrogate/reference_metrics.csv
+  python test/experiments/example_final_surrogate.py --operator sl \
+    --reference test/experiments/results/german_final_surrogate/reference_metrics.csv
 """
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import argparse
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -20,7 +20,7 @@ import pandas as pd
 from interpret.glassbox import ExplainableBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-from experiments.german_aggregation import load_german, make_split, make_preprocessor, METRICS
+from test.experiments.german_aggregation import load_german, make_split, make_preprocessor, METRICS
 from TWEEF.Aggregation import MechanismResult, SubjectiveLogic
 from TWEEF.Calibration import QuartileCalibration
 from TWEEF.TrustworthyClassifier import TrustworthyClassifier
