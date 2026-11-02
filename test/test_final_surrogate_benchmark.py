@@ -8,6 +8,7 @@ import pytest
 
 from experiments.german_final_surrogate import (
     METRICS, parse_args, prepare_output, select_by_cv, weight_configurations,
+    snapshot_parameters, write_json,
 )
 
 
@@ -69,3 +70,21 @@ def test_cli_defaults_are_the_agreed_full_experiment_and_reject_duplicate_seeds(
     assert args.postprocessor == "calibrated_equalized_odds"
     with pytest.raises(SystemExit):
         parse_args(["--seeds", "0", "0"])
+
+
+def test_parameter_snapshot_encodes_xgboost_missing_nan_and_nested_numpy_values():
+    parameters = {"missing": np.nan, "nested": (np.float32(np.inf), np.array([1., -np.inf])),
+                  "random_state": np.int64(7), "ordinary": None}
+    encoded = snapshot_parameters(parameters)
+    assert encoded == {"missing": {"__float__": "nan"},
+                       "nested": [{"__float__": "inf"}, [1., {"__float__": "-inf"}]],
+                       "random_state": 7, "ordinary": None}
+    assert json.loads(json.dumps(encoded, allow_nan=False)) == encoded
+    assert np.isnan(parameters["missing"])
+
+
+def test_metric_nan_remains_an_error_in_strict_json(tmp_path):
+    path = tmp_path / "metrics.json"
+    with pytest.raises(ValueError, match="Out of range float"):
+        write_json(path, {"metrics": {"Accuracy": np.nan}})
+    assert not path.exists()

@@ -48,6 +48,26 @@ def json_default(value):
     raise TypeError(f"Cannot serialize {type(value).__name__}")
 
 
+def snapshot_parameters(value):
+    """Encode nonfinite estimator defaults without relaxing metric validation.
+
+    XGBoost legitimately declares missing=np.nan. Typed markers keep that
+    parameter reproducible in strict JSON; metric payloads never use this helper.
+    """
+    if isinstance(value, np.generic):
+        return snapshot_parameters(value.item())
+    if isinstance(value, np.ndarray):
+        return snapshot_parameters(value.tolist())
+    if isinstance(value, dict):
+        return {key: snapshot_parameters(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [snapshot_parameters(item) for item in value]
+    if isinstance(value, float) and not np.isfinite(value):
+        kind = "nan" if np.isnan(value) else ("inf" if value > 0 else "-inf")
+        return {"__float__": kind}
+    return value
+
+
 def write_json(path, value):
     path = Path(path)
     encoded = json.dumps(value, indent=2, default=json_default, allow_nan=False) + "\n"
@@ -186,8 +206,8 @@ def train_seed(seed, args, protocol_sha256):
             for fold, row in reference.iterrows():
                 reference_rows.append({"model": name, "candidate_rounds": rounds, "fold": int(fold), **row.to_dict()})
             cases[(name, rounds)] = {"fit_seconds": time.monotonic() - started,
-                "teacher_parameters": teacher_models[name].get_params(deep=False),
-                "student_parameters": student.get_params(deep=False),
+                "teacher_parameters": snapshot_parameters(teacher_models[name].get_params(deep=False)),
+                "student_parameters": snapshot_parameters(student.get_params(deep=False)),
                 "reference_metrics": reference.to_dict(orient="records"),
                 "feature_ranking": list(workflow.ranking_),
                 "reference_provenance": getattr(workflow, "reference_audit_", None),
