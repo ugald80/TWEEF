@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import warnings
 from numbers import Real
 from scipy.special import rel_entr
 from sklearn.base import ClassifierMixin
@@ -295,48 +296,38 @@ class InterpretabilityProcessing:
         Returns:
         y_predicted_ex (Series): Predictions from the surrogate model.
         """
-        self.surrogate_r2_error = 0
-        max_iterations = self.max_iterations
-        iteration = 0
-        logger.info("Start surrogate model training iterations")
-
+        warnings.warn(
+            "surrogate_model_train is a legacy numeric-data helper. Use "
+            "TrustworthyClassifier for persisted preprocessing, frozen rankings "
+            "and separated calibration/evaluation. R2 is diagnostic only.",
+            DeprecationWarning, stacklevel=2,
+        )
         ebm_kwargs = {
-            "feature_names": x_test.columns,
+            "feature_names": x_train.columns,
             "interactions": self.ebm_interactions,
             "n_jobs": 1,
+            "random_state": self.random_state,
         }
         if self.ebm_max_rounds is not None:
             ebm_kwargs["max_rounds"] = self.ebm_max_rounds
         self.explainable_classifier = ExplainableBoostingClassifier(**ebm_kwargs)
 
-        while iteration < max_iterations and self.surrogate_r2_error < self.min_r2:
-            logger.info("Surrogate training iteration %s: train given algorithm", iteration + 1)
-            given_algorithm.fit(x_train, y_train)
-
-            logger.info("Predict with given algorithm")
-            y_predicted = given_algorithm.predict(x_test)
-
-            logger.info("Train surrogate model")
-            self.explainable_classifier.fit(x_test, y_predicted)
-
-            logger.info("Predict with surrogate model")
-            y_predicted_ex = self.explainable_classifier.predict(x_test)
-
-            logger.info("Calculate surrogate R2")
-            self.surrogate_r2_error = r2_score(
-                y_predicted.astype(np.float64), y_predicted_ex.astype(np.float64)
+        given_algorithm.fit(x_train, y_train)
+        training_targets = given_algorithm.predict(x_train)
+        self.explainable_classifier.fit(x_train, training_targets)
+        # All explanation preparation uses training. Neither test features nor
+        # labels influence fitting, ranking, retries or candidate selection.
+        self.compute_attributions_expectations(
+            x_train, x_train, y_train, self.explainable_classifier,
+        )
+        y_predicted_ex = self.explainable_classifier.predict(x_test)
+        teacher_test = given_algorithm.predict(x_test)
+        self.surrogate_r2_error = r2_score(
+            np.asarray(teacher_test, dtype=float), np.asarray(y_predicted_ex, dtype=float),
+        )
+        self.surrogate_agreement_ = float(np.mean(teacher_test == y_predicted_ex))
+        if self.effective_complexity_mode == "loss":
+            self.effective_complexity_score = self._loss_based_effective_complexity(
+                self.explainable_classifier, x_test,
             )
-            iteration += 1
-
-        if self.surrogate_r2_error < self.min_r2:
-            logger.warning(
-                "Surrogate model did not reach minimum R2 threshold: %s",
-                self.min_r2,
-            )
-
-        logger.info("Surrogate model training completed")
-        logger.info("Extract attributions and expectations")
-        
-        self.compute_attributions_expectations(x_train, x_test, y_test, self.explainable_classifier)
-
         return pd.Series(y_predicted_ex, index=y_test.index, name=y_test.name)

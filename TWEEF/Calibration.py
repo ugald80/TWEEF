@@ -2,11 +2,48 @@
 
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator
+from sklearn.utils.validation import check_is_fitted
 
 from TWEEF.Constants import FUZZY_THRESHOLD_PEAKS, get_metric_thresholds
 
 
 DEFAULT_CALIBRATION_QUANTILES = (0.25, 0.5, 0.75)
+
+
+class QuartileCalibration(BaseEstimator):
+    """Fitted, immutable-reference calibration at min/P25/P50/P75/max.
+
+    A constant active reference is rejected explicitly. A caller may supply a
+    different, independently obtained reference; calibration never invents data
+    or falls back to evaluation observations. With no reference, the published
+    per-metric TWEEF defaults are used, preserving the legacy API.
+    """
+
+    def __init__(self, constant_policy="error"):
+        self.constant_policy = constant_policy
+
+    def fit(self, reference_metrics=None, *, metric_names=None):
+        if self.constant_policy != "error":
+            raise ValueError("constant_policy must be 'error'; supply an explicit valid reference instead.")
+        calibrator = FuzzyCalibrator(metrics_values=reference_metrics)
+        names = list(metric_names) if metric_names is not None else (
+            list(reference_metrics.columns) if reference_metrics is not None else []
+        )
+        self.thresholds_ = {name: calibrator.thresholds_for(name) for name in names}
+        self.calibrator_ = FuzzyCalibrator(thresholds=self.thresholds_) if names else calibrator
+        self.reference_metrics_ = (
+            reference_metrics.copy(deep=True) if reference_metrics is not None else None
+        )
+        return self
+
+    def thresholds_for(self, metric_name):
+        check_is_fitted(self, "calibrator_")
+        return self.calibrator_.thresholds_for(metric_name)
+
+    def membership_vector(self, metric_name, value):
+        check_is_fitted(self, "calibrator_")
+        return self.calibrator_.membership_vector(metric_name, value)
 
 
 class FuzzyCalibrator:

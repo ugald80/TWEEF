@@ -2,6 +2,157 @@
 
 Trustworthiness Estimation and Enhancement Framework for Machine Learning Models.
 
+
+## Final-surrogate predictor and complete mechanisms
+
+The primary classifier now keeps the interpretable surrogate as its final model.
+The given classifier is a teacher/reference, never a fallback chosen after looking
+at test performance. The persisted prediction chain includes preprocessing,
+the surrogate and any configured fairness postprocessor. `predict`, `predict_proba`
+and `evaluate` use that same chain; evaluation does not fit or select components.
+
+An executable example is available in
+[`experiments/example_final_surrogate.py`](experiments/example_final_surrogate.py):
+
+```sh
+.venv-paper/bin/python experiments/example_final_surrogate.py
+```
+
+It demonstrates an injected user mechanism and checks that report predictions
+match the public predictor. The example accepts `--postprocess` and can use built-in
+SL with `--operator sl --reference PATH_TO_TRAINING_ONLY_REFERENCE_CSV`.
+
+The new usage pattern is:
+
+```python
+from interpret.glassbox import ExplainableBoostingClassifier
+from TWEEF.TrustworthyClassifier import TrustworthyClassifier
+from TWEEF.Aggregation import SubjectiveLogic
+from TWEEF.Calibration import QuartileCalibration
+
+workflow = TrustworthyClassifier(
+    given_classifier=teacher,
+    surrogate=ExplainableBoostingClassifier(interactions=0, random_state=0),
+    preprocessor=preprocessor,
+    aggregation=None,
+    metric_weights={"Accuracy": .4, "equal Opportunity": .3,
+                    "Effective Complexity": .3},
+    effective_complexity={"loss": "bernoulli_kl", "loss_threshold": .05,
+                          "feature_unit": "original", "ranking_method": "permutation",
+                          "repeats": 3},
+    reference_cv=5,
+    postprocessor="calibrated_equalized_odds",  # optional; default is disabled
+    random_state=0,
+)
+workflow.fit(X_train, y_train, sensitive_features=g_train,
+             validation_data=(X_calibration, y_calibration),
+             validation_sensitive_features=g_calibration)
+workflow.set_aggregation(
+    SubjectiveLogic(alpha=.5, calibration=QuartileCalibration()),
+    reference_metrics=training_only_reference,
+)
+report = workflow.evaluate(X_test, y_test, sensitive_features=g_test)
+y_pred = workflow.predict(X_new, sensitive_features=g_new)
+```
+
+`aggregation=None` allows predictor fitting and collection of training-only CV
+metrics before selecting a shared reference. A built-in or custom mechanism can
+also be supplied directly at construction. Quartile calibration rejects a constant
+active reference instead of manufacturing thresholds. A common pooled reference
+is useful when comparing several models; it must exclude their test data.
+
+A complete mechanism implements `fit(reference_metrics, *, weights)` and
+`aggregate(metrics)`. It owns its representation and aggregation and returns a
+`MechanismResult` with its native score, declared range/direction and optional
+details. TWEEF does not require linguistic membership or normalize custom scores.
+The built-in `LWA`, `GWA` and `SubjectiveLogic` preserve their native formulas;
+strings `"lwa"`, `"gwa"` and `"sl"` remain supported. GWA's `hesitation` is independent
+of importance weights. Plugins must explicitly declare unsupported weighting;
+configuration conflicts are errors rather than hidden precedence rules.
+
+EC now perturbs original variables and calls the full stored predictor. Permuting
+a categorical variable does not create invalid one-hot combinations. Permutation
+rankings are fitted before test and frozen. KL is explicit and requires valid
+probabilities; `class_disagreement` provides a common teacher/student assessment
+when a teacher such as LinearSVC or thresholded LinearRegression lacks probabilities.
+The two losses have different units and are never silently interchanged in the
+new pipeline. A teacher is not calibrated merely to compute the EBM student's EC.
+
+The legacy DisparateImpactRemover procedure is excluded from the primary flow:
+it rebuilt repairs separately on each evaluation batch and did not provide a
+persisted inductive transformation. Configured preprocessing must learn on
+training data and transform new observations. Fairness postprocessing is fitted
+on calibration data, stored, and applied at prediction time with raw sensitive
+groups. True labels are never replaced by postprocessed predictions.
+
+## German: final-surrogate experiment
+
+Run the complete new protocol in a separate directory:
+
+```sh
+.venv-paper/bin/python experiments/german_final_surrogate.py
+```
+
+On macOS, use the OpenMP environment variable described in the installation notes
+below if required by the XGBoost wheel. A smaller smoke run is:
+
+```sh
+.venv-paper/bin/python experiments/german_final_surrogate.py \
+  --output /tmp/tweef-final-surrogate-smoke --seeds 0 --models DT RF \
+  --candidate-rounds 25 50 --reference-cv 3 --ec-repeats 1
+```
+
+The full run retains all 1,000 records, the paper's eight teacher configurations
+and seeds 0–9. Each seed has the same 600/200/200 train/calibration/test split as
+the earlier benchmark. Two additive EBM candidates have fixed budgets of 100 and
+500 maximum rounds, one outer bag and one job; these are explicit experimental
+settings, not EBM defaults. There are 160 final candidate fits plus internal CV
+fits. Postprocessing is explicitly enabled for the main run.
+
+Within each seed, training-only five-fold references from every teacher/candidate
+are pooled. Fold-local fairness calibration is separate from the fold used for
+metric measurement. Final fairness calibration uses the external calibration
+partition. No candidate selection or reference fitting uses test.
+
+Two analyses reuse the same fitted candidates and cached metric matrices:
+
+1. **Fixed predictor:** the 500-round candidate is evaluated by all mechanisms with
+   identical metrics/reference. Weight sweeps, GWA hesitation, rankings, ties and
+   rank agreement describe mechanism behavior.
+2. **Complete flow:** each mechanism selects the candidate with the best mean
+   internal CV mechanism score before any test evaluation. Candidates, splits,
+   references and budgets are identical; ties prefer the smaller budget.
+
+`experiments/results/german_final_surrogate` contains the protocol/source/environment
+manifest, per-seed caches, CV references, raw teacher/student/final metrics,
+class-disagreement comparisons, KL metrics, fidelity, mechanism scores/rankings,
+full-flow selections, predictive differences and a summary figure. Cache reuse
+requires the same full protocol fingerprint and rejects incompatible output
+before overwriting its manifest.
+
+Historical results remain in `german` and `german_ec_kl`. The new experiment changes
+the final predictor, EC perturbation unit, attribution fitting and calibration
+reference; EC/score changes against those artifacts cannot be attributed to
+aggregation alone. Accuracy/equity changes are reported with the changed protocol
+made explicit. Repeated splits overlap and are descriptive evidence from one
+dataset. Native mechanism scores are not interchangeable units; a higher average
+score alone is not evidence of greater real trustworthiness.
+
+## Migration from the earlier classifier
+
+Prefer `metric_weights`, explicit EC configuration and explicit calibration data.
+`given_classifier` names the teacher; `surrogate_` and the persisted predictor name
+the final model. Read teacher/student fidelity separately from final Accuracy,
+equity and EC. Methods that relied on replacing the final model with the teacher
+or on fitting repairs using test data no longer have those semantics. Legacy
+constructor parameters are retained where compatible, with validation or
+migration warnings when necessary. The manual sections below document the older
+configuration style; the executable final-surrogate example is the primary guide.
+
+## Historical correction records
+
+The following correction results describe the preserved aggregation-only protocol.
+
 ## Effective Complexity fidelity correction
 
 Loss-based Effective Complexity now measures changes from the unrestricted model.
@@ -235,7 +386,7 @@ errors, reinstall the project constraints:
 python3 -m pip install --force-reinstall -e ".[all,dev]"
 ```
 
-## User Manual
+## Legacy configuration reference
 
 ### 1. Prepare Your Data
 

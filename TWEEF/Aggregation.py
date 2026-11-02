@@ -1,13 +1,20 @@
 """Trust aggregation operators used by TWEEF."""
 
-from dataclasses import dataclass
+from copy import deepcopy
+from dataclasses import dataclass, field
 from collections.abc import Mapping
 from numbers import Real
+from importlib import metadata as package_metadata
+from functools import lru_cache
+import sys
 
 import numpy as np
+import pandas as pd
 from scipy.special import erf, erfinv
+from sklearn.base import BaseEstimator
+from sklearn.utils.validation import check_is_fitted
 
-from TWEEF.Calibration import FuzzyCalibrator
+from TWEEF.Calibration import FuzzyCalibrator, QuartileCalibration
 from TWEEF.Constants import LINGUISTIC_VALUES
 from TWEEF.Metrics import MetricList
 from TWEEF.Validation import validate_metric_list
@@ -28,6 +35,239 @@ class AggregationResult:
     score_scale: str
     operator: str
     details: dict
+
+
+@dataclass(frozen=True)
+class MechanismResult:
+    """A mechanism's native score and declared interpretation.
+
+    A range is optional (unbounded mechanisms are supported). Normalized and
+    linguistic scores are optional diagnostics, never imposed by the framework.
+    Equal numeric ranges do not imply comparable trustworthiness semantics.
+    """
+
+    score: float
+    score_range: object = None
+    higher_is_better: bool = True
+    details: dict = field(default_factory=dict)
+    mechanism: str = "custom"
+    raw_score: object = None
+    normalized_score: object = None
+    linguistic_score: object = None
+    score_scale: str = "native"
+
+    @property
+    def operator(self):
+        return self.mechanism
+
+
+def validate_mechanism_result(result):
+    """Check a plugin's declared output without converting its representation."""
+    if not isinstance(result, MechanismResult):
+        raise TypeError("aggregate must return a MechanismResult.")
+    if not isinstance(result.score, Real) or not np.isfinite(result.score):
+        raise ValueError("mechanism score must be a finite number.")
+    if not isinstance(result.higher_is_better, (bool, np.bool_)):
+        raise ValueError("higher_is_better must be a boolean.")
+    if not isinstance(result.mechanism, str) or not result.mechanism:
+        raise ValueError("mechanism identifier must be a nonempty string.")
+    if not isinstance(result.details, Mapping):
+        raise TypeError("mechanism details must be a mapping.")
+    if result.score_range is not None:
+        try:
+            low, high = result.score_range
+            valid = (
+                isinstance(low, Real) and isinstance(high, Real)
+                and np.isfinite(low) and np.isfinite(high)
+                and low < high and low <= result.score <= high
+            )
+        except (TypeError, ValueError):
+            valid = False
+        if not valid:
+            raise ValueError("mechanism score must lie within its declared finite score_range.")
+    for name in ("raw_score", "normalized_score", "linguistic_score"):
+        value = getattr(result, name)
+        if value is not None and (not isinstance(value, Real) or not np.isfinite(value)):
+            raise ValueError(f"{name} must be finite when supplied.")
+    return result
+
+
+def normalize_metric_weights(weights):
+    """Return a new normalized mapping; zero importance carries no evidence."""
+    if not isinstance(weights, Mapping) or not weights:
+        raise ValueError("metric_weights must be a nonempty mapping.")
+    if any(not isinstance(name, str) or not name for name in weights):
+        raise ValueError("metric names must be nonempty strings.")
+    try:
+        values = np.asarray(list(weights.values()), dtype=float)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("metric weights must be finite nonnegative numbers.") from exc
+    if not np.isfinite(values).all() or (values < 0).any() or not (values > 0).any():
+        raise ValueError("metric weights must be finite nonnegative numbers with positive sum.")
+    # Scale before summing so large but finite importance values cannot overflow.
+    values = values / values.max()
+    values = values / values.sum()
+    return dict(zip(weights, values.tolist()))
+
+
+@lru_cache(maxsize=128)
+def _package_version(package_name):
+    try:
+        return package_metadata.version(package_name)
+    except package_metadata.PackageNotFoundError:
+        return None
+
+
+def mechanism_metadata(mechanism):
+    """Snapshot an implementation's declared configuration without coercing it.
+
+    Objects in the configuration are retained as independent Python copies, not
+    converted to strings or presumed JSON serializable. Missing versions/seeds
+    are explicit None values. Source hashes and experiment provenance belong to
+    the caller's experiment manifest rather than an inferred package version.
+    """
+    cls = type(mechanism)
+    if callable(getattr(mechanism, "get_params", None)):
+        config = mechanism.get_params()
+        config_source = "get_params"
+    elif callable(getattr(mechanism, "get_config", None)):
+        config = mechanism.get_config()
+        config_source = "get_config"
+    else:
+        config = {
+            name: value for name, value in getattr(mechanism, "__dict__", {}).items()
+            if not name.startswith("_") and not name.endswith("_") and not callable(value)
+        }
+        config_source = "public_attributes"
+    module_name = cls.__module__
+    package_name = module_name.split(".")[0]
+    module = sys.modules.get(module_name)
+    package = sys.modules.get(package_name)
+    package_version = _package_version(package_name)
+    version, source = None, None
+    for candidate, candidate_source in (
+        (getattr(mechanism, "__version__", None), "declared"),
+        (getattr(mechanism, "version", None), "declared"),
+        (getattr(module, "__version__", None), "module"),
+        (getattr(package, "__version__", None), "package_module"),
+        (package_version, "package_distribution"),
+    ):
+        if candidate is not None and not callable(candidate):
+            version, source = deepcopy(candidate), candidate_source
+            break
+    return {
+        "class_path": f"{module_name}.{cls.__qualname__}",
+        "module": module_name,
+        "package": package_name,
+        "package_version": package_version,
+        "version": version,
+        "version_source": source,
+        "config": deepcopy(config),
+        "config_source": config_source,
+        "supports_weights": deepcopy(getattr(mechanism, "supports_weights", True)),
+        "seed": deepcopy(getattr(mechanism, "random_state", getattr(mechanism, "seed", None))),
+    }
+
+
+class _BuiltinMechanism(BaseEstimator):
+    """Adapter preserving the established built-in formulas and diagnostics."""
+
+    supports_weights = True
+
+    def fit(self, reference_metrics=None, *, weights):
+        self.weights_ = normalize_metric_weights(weights)
+        names = [name for name, weight in self.weights_.items() if weight > 0]
+        selected = None
+        if reference_metrics is not None:
+            if not isinstance(reference_metrics, pd.DataFrame):
+                raise TypeError("reference_metrics must be a pandas.DataFrame.")
+            if reference_metrics.columns.has_duplicates or reference_metrics.empty:
+                raise ValueError("reference_metrics must have rows and unique metric columns.")
+            unknown = set(reference_metrics.columns).difference(self.weights_)
+            missing = set(names).difference(reference_metrics.columns)
+            if unknown:
+                raise ValueError(f"unknown calibration metrics: {sorted(unknown)!r}")
+            if missing:
+                raise ValueError(f"missing calibration for active metrics: {sorted(missing)!r}")
+            selected = reference_metrics.loc[:, names].copy(deep=True)
+        calibration = deepcopy(self.calibration) if self.calibration is not None else QuartileCalibration()
+        if isinstance(calibration, QuartileCalibration):
+            calibration.fit(selected, metric_names=names)
+        elif isinstance(calibration, FuzzyCalibrator):
+            if selected is not None:
+                raise ValueError("explicit FuzzyCalibrator and reference_metrics are mutually exclusive.")
+        else:
+            if not callable(getattr(calibration, "fit", None)):
+                raise TypeError("calibration must implement fit and thresholds_for.")
+            calibration.fit(selected)
+        if not callable(getattr(calibration, "thresholds_for", None)):
+            raise TypeError("calibration must implement thresholds_for.")
+        thresholds = {name: calibration.thresholds_for(name) for name in names}
+        self.calibration_ = calibration
+        self.calibrator_ = FuzzyCalibrator(thresholds=thresholds)
+        self.thresholds_ = thresholds
+        self.score_scale_ = normalize_score_scale(self.score_scale)
+        # Constructor validation of alpha/hesitation remains in TrustAggregator.
+        self.aggregator_ = TrustAggregator(
+            operator=self.operator,
+            calibrator=self.calibrator_,
+            alpha=getattr(self, "alpha", 0.5),
+            gwa_hesitation=getattr(self, "hesitation", 0.0),
+            score_scale=self.score_scale_,
+        )
+        return self
+
+    def aggregate(self, metrics):
+        check_is_fitted(self, ["weights_", "aggregator_"])
+        if not isinstance(metrics, Mapping) or set(metrics) != set(self.weights_):
+            raise ValueError("metrics must contain exactly the fitted metric names.")
+        metric_list = MetricList()
+        for name, weight in self.weights_.items():
+            metric_list.add_metric(name, weight, goal=0.0, value=metrics[name])
+        result = self.aggregator_.aggregate(metric_list)
+        return validate_mechanism_result(MechanismResult(
+            score=result.score,
+            score_range=(-2.0, 2.0) if self.score_scale_ == "linguistic" else (0.0, 1.0),
+            higher_is_better=True,
+            mechanism=self.operator,
+            details=deepcopy(result.details),
+            raw_score=result.raw_score,
+            normalized_score=result.normalized_score,
+            linguistic_score=result.linguistic_score,
+            score_scale=result.score_scale,
+        ))
+
+
+class LWA(_BuiltinMechanism):
+    """Linguistic weighted averaging with its own fitted calibration."""
+
+    operator = "lwa"
+
+    def __init__(self, calibration=None, score_scale="normalized"):
+        self.calibration = calibration
+        self.score_scale = score_scale
+
+
+class GWA(_BuiltinMechanism):
+    """Gaussian intuitionistic aggregation with independent hesitation."""
+
+    operator = "gwa"
+
+    def __init__(self, calibration=None, hesitation=0.0, score_scale="normalized"):
+        self.calibration = calibration
+        self.hesitation = hesitation
+        self.score_scale = score_scale
+
+
+class SubjectiveLogic(_BuiltinMechanism):
+    """Importance-weighted evidence averaging of native metric opinions."""
+
+    operator = "sl"
+
+    def __init__(self, calibration=None, alpha=0.5, score_scale="normalized"):
+        self.calibration = calibration
+        self.alpha = alpha
+        self.score_scale = score_scale
 
 
 class TRUSTWORTHINESS_SCORE_SCALE:

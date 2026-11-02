@@ -1,5 +1,6 @@
 """Trustworthiness estimation with shared scalar and batch aggregation."""
 from copy import deepcopy
+from collections.abc import Mapping
 
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
@@ -13,6 +14,9 @@ from TWEEF.Aggregation import (
     TRUSTWORTHINESS_SCORE_SCALE,
     TrustAggregator,
     normalize_score_scale,
+    normalize_metric_weights,
+    validate_mechanism_result,
+    mechanism_metadata,
 )
 from TWEEF.Calibration import FuzzyCalibrator, membership_vector, triangular_membership
 from TWEEF.Logging import get_logger
@@ -58,7 +62,28 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         # but validate/calibrate only metrics with positive weight at first use.
         self._configured_thresholds = deepcopy(fuzzy_thresholds)
         self._configured_reference = deepcopy(metrics_values)
+        self._configured_mechanism = deepcopy(aggregation) if not isinstance(aggregation, str) else None
         self.calibrator_ = None
+        self._validate_object_configuration()
+
+    def _validate_object_configuration(self):
+        if isinstance(self.aggregation, str):
+            return
+        if not callable(getattr(self.aggregation, "fit", None)) or not callable(getattr(self.aggregation, "aggregate", None)):
+            raise TypeError("aggregation objects must implement fit(reference_metrics, *, weights) and aggregate(metrics).")
+        hesitation_default = (
+            isinstance(self.gwa_hesitation, (int, float, np.number))
+            and self.gwa_hesitation == 0.0
+        )
+        if (
+            self.alpha != 0.5 or not hesitation_default
+            or self.trustworthiness_score_scale != TRUSTWORTHINESS_SCORE_SCALE.NORMALIZED
+            or self.fuzzy_thresholds is not None
+        ):
+            raise ValueError(
+                "An aggregation object owns its alpha, hesitation, score scale and calibration; "
+                "configure them on the mechanism instead of using non-default global parameters."
+            )
 
     def set_params(self, **params):
         """Refresh calibration snapshots when sklearn changes their parameters.
@@ -67,18 +92,29 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         changing the aggregation operator or its parameters retains fitted crests.
         """
         calibration_changed = bool({"fuzzy_thresholds", "metrics_values"}.intersection(params))
+        object_changed = (
+            ("aggregation" in params and not isinstance(params["aggregation"], str))
+            or any(name.startswith("aggregation__") for name in params)
+            or ("aggregation" in params and not isinstance(self.aggregation, str))
+        )
         if calibration_changed:
             thresholds = params.get("fuzzy_thresholds", self.fuzzy_thresholds)
             reference = params.get("metrics_values", self.metrics_values)
             if thresholds is not None and reference is not None:
                 raise ValueError("thresholds and metrics_values are mutually exclusive.")
         super().set_params(**params)
+        self._validate_object_configuration()
+        if object_changed:
+            self._configured_mechanism = deepcopy(self.aggregation) if not isinstance(self.aggregation, str) else None
         if calibration_changed:
             self._configured_thresholds = deepcopy(self.fuzzy_thresholds)
             self._configured_reference = deepcopy(self.metrics_values)
+        if calibration_changed or object_changed:
             for name in (
                 "weights_", "metric_goals_", "feature_names_in_",
                 "n_features_in_", "aggregation_results_",
+                "structured_results_", "mechanism_", "aggregation_", "reference_metrics_",
+                "mechanism_metadata_",
             ):
                 self.__dict__.pop(name, None)
             self.weights = None
@@ -86,9 +122,15 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
             self.calibrator_ = None
             self.aggregation_result_ = None
             self.trustworthiness_score = None
+        elif isinstance(self.aggregation, str) and hasattr(self, "weights_"):
+            self.mechanism_metadata_ = mechanism_metadata(TrustAggregator(
+                operator=self.aggregation, calibrator=self.calibrator_, alpha=self.alpha,
+                score_scale=self.trustworthiness_score_scale, gwa_hesitation=self.gwa_hesitation,
+            ))
+            self.mechanism_metadata_["metric_weights"] = deepcopy(self.weights_)
         return self
 
-    def fit(self, fuzzy_functions_thresholds=None, metrics_values=None, metric_list=None):
+    def fit(self, fuzzy_functions_thresholds=None, metrics_values=None, metric_list=None, metric_weights=None):
         """Freeze calibration and weights for subsequent batch estimation.
 
         The positional threshold argument and all existing keyword arguments are
@@ -100,6 +142,17 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
             thresholds, reference = fuzzy_functions_thresholds, metrics_values
         else:
             thresholds, reference = self._configured_thresholds, self._configured_reference
+        if metric_weights is not None and metric_list is not None:
+            raise ValueError("metric_weights and metric_list are mutually exclusive.")
+        if not isinstance(self.aggregation, str):
+            if thresholds is not None:
+                raise ValueError("An aggregation object owns its calibration; configure thresholds on the mechanism.")
+            return self._fit_mechanism(reference, metric_list, metric_weights)
+        if metric_weights is not None:
+            normalized = normalize_metric_weights(metric_weights)
+            metric_list = MetricList()
+            for name, weight in normalized.items():
+                metric_list.add_metric(name, weight, goal=0.0)
         if thresholds is None and reference is None and metric_list is None:
             raise ValueError(
                 "You must provide fuzzy_functions_thresholds, metrics_values, or metric_list."
@@ -131,6 +184,74 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         self.feature_names_in_ = np.asarray(names, dtype=object)
         self.n_features_in_ = len(names)
         self.aggregation_results_ = []
+        self.structured_results_ = self.aggregation_results_
+        self.aggregation_result_ = None
+        self.trustworthiness_score = None
+        self.mechanism_metadata_ = mechanism_metadata(TrustAggregator(
+            operator=self.aggregation, calibrator=self.calibrator_, alpha=self.alpha,
+            score_scale=self.trustworthiness_score_scale, gwa_hesitation=self.gwa_hesitation,
+        ))
+        self.mechanism_metadata_["metric_weights"] = deepcopy(self.weights_)
+        return self
+
+    def _fit_mechanism(self, reference, metric_list, metric_weights):
+        self._validate_object_configuration()
+        if metric_list is not None:
+            validate_metric_list(metric_list)
+            weights = dict(zip(metric_list.get_names(), metric_list.get_weights()))
+            goals = dict(zip(metric_list.get_names(), metric_list.get_goals()))
+        elif metric_weights is not None:
+            weights = normalize_metric_weights(metric_weights)
+            goals = dict.fromkeys(weights, 0.0)
+        elif reference is not None:
+            if not isinstance(reference, pd.DataFrame) or reference.empty:
+                raise ValueError("metrics_values must be a nonempty pandas.DataFrame.")
+            weights = dict.fromkeys(reference.columns, 1.0 / len(reference.columns))
+            goals = dict.fromkeys(weights, 0.0)
+        else:
+            raise ValueError("Provide metric_weights, metric_list, or reference metrics_values before fitting.")
+        weights = normalize_metric_weights(weights)
+        if reference is not None:
+            if not isinstance(reference, pd.DataFrame):
+                raise TypeError("metrics_values must be a pandas.DataFrame.")
+            if reference.empty or reference.columns.has_duplicates:
+                raise ValueError("metrics_values must have rows and unique metric columns.")
+            unknown = set(reference.columns).difference(weights)
+            missing = {name for name, weight in weights.items() if weight > 0}.difference(reference.columns)
+            if unknown or missing:
+                raise ValueError(f"reference metric schema mismatch: unknown={sorted(unknown)!r}, missing={sorted(missing)!r}.")
+            try:
+                reference = reference.astype(float).copy(deep=True)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("reference metrics must be numeric.") from exc
+            if not np.isfinite(reference.to_numpy()).all():
+                raise ValueError("reference metrics must be finite.")
+            if ((reference < 0) | (reference > 1)).to_numpy().any():
+                raise ValueError("reference metrics must be in [0, 1].")
+        mechanism = deepcopy(self._configured_mechanism)
+        if getattr(mechanism, "supports_weights", True) is False:
+            positive = [weight for weight in weights.values() if weight > 0]
+            if len(positive) != len(weights) or not np.allclose(positive, positive[0]):
+                raise ValueError("This mechanism does not support nonuniform metric weights.")
+        metadata = mechanism_metadata(mechanism)
+        fitted = mechanism.fit(deepcopy(reference), weights=deepcopy(weights))
+        if fitted is not mechanism:
+            raise TypeError("mechanism.fit must return self.")
+        self.mechanism_ = mechanism
+        self.aggregation_ = mechanism
+        self.mechanism_metadata_ = metadata
+        self.mechanism_metadata_["metric_weights"] = deepcopy(weights)
+        self.weights_ = weights
+        self.weights = self.weights_
+        self.metric_goals_ = goals
+        self.feature_names_in_ = np.asarray(list(weights), dtype=object)
+        self.n_features_in_ = len(weights)
+        self.reference_metrics_ = deepcopy(reference)
+        # Optional built-in diagnostics are exposed, never required of plugins.
+        self.calibrator_ = getattr(mechanism, "calibrator_", None)
+        self.thresholds_ = deepcopy(getattr(mechanism, "thresholds_", None))
+        self.aggregation_results_ = []
+        self.structured_results_ = self.aggregation_results_
         self.aggregation_result_ = None
         self.trustworthiness_score = None
         return self
@@ -200,6 +321,35 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
         return LINGUISTIC_VALUES[int(np.argmax(vector))], float(np.dot(vector, LINGUISTIC_VALUES))
 
     def _aggregate_metrics(self, metrics):
+        if not isinstance(self.aggregation, str):
+            if isinstance(metrics, MetricList):
+                validate_metric_list(metrics, require_values=True)
+                if not hasattr(self, "mechanism_"):
+                    self.fit(metric_list=metrics)
+                supplied_weights = normalize_metric_weights(dict(zip(metrics.get_names(), metrics.get_weights())))
+                if set(supplied_weights) != set(self.weights_) or any(
+                    not np.isclose(supplied_weights[name], self.weights_[name], rtol=0, atol=1e-12)
+                    for name in self.weights_
+                ):
+                    raise ValueError("scalar metric weights must match the fitted mechanism; refit to change them.")
+                values = dict(zip(metrics.get_names(), metrics.get_values()))
+            elif isinstance(metrics, Mapping):
+                check_is_fitted(self, ["mechanism_", "weights_"])
+                values = dict(metrics)
+            else:
+                raise TypeError("metrics must be a MetricList or a mapping of metric values.")
+            if set(values) != set(self.weights_):
+                raise ValueError("metrics must contain exactly the fitted metric names.")
+            try:
+                array = np.asarray([values[name] for name in self.weights_], dtype=float)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("metric values must be numeric.") from exc
+            if not np.isfinite(array).all() or ((array < 0) | (array > 1)).any():
+                raise ValueError("metric values must be finite and in [0, 1].")
+            # Give the plugin its own input snapshot. Its internal representation
+            # and optional diagnostics remain opaque to this estimator.
+            values = dict(zip(self.weights_, array.tolist()))
+            return deepcopy(validate_mechanism_result(self.mechanism_.aggregate(values)))
         validate_metric_list(metrics, require_values=True)
         if not np.isfinite(np.asarray(metrics.get_values(), dtype=float)).all():
             raise ValueError("metric values must be finite.")
@@ -212,13 +362,16 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
                 metrics.get_names(),
                 [metric.name for metric in metrics.get_metrics() if metric.weight > 0],
             )
-        return TrustAggregator(
+        aggregator = TrustAggregator(
             operator=self.aggregation,
             calibrator=self.calibrator_,
             alpha=self.alpha,
             score_scale=self.trustworthiness_score_scale,
             gwa_hesitation=self.gwa_hesitation,
-        ).aggregate(metrics)
+        )
+        self.mechanism_metadata_ = mechanism_metadata(aggregator)
+        self.mechanism_metadata_["metric_weights"] = dict(zip(metrics.get_names(), metrics.get_weights()))
+        return aggregator.aggregate(metrics)
 
     def transform(self, X):
         """Aggregate each row, preserving its index and linguistic diagnostics.
@@ -241,6 +394,17 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
             raise ValueError("metric values must be finite.")
         if ((values < 0) | (values > 1)).to_numpy().any():
             raise ValueError("metric values must be in [0, 1].")
+        if not isinstance(self.aggregation, str):
+            # Object mechanisms retain the original metric columns. In particular
+            # an external representation is never mislabeled as linguistic data.
+            output = values.copy(deep=True)
+            results = [self._aggregate_metrics(row.to_dict()) for _, row in values.iterrows()]
+            output[TRUSTWORTHINESS_SCORE_NAME] = [result.score for result in results]
+            self.aggregation_results_ = results
+            self.structured_results_ = results
+            self.aggregation_result_ = results[-1] if results else None
+            self.trustworthiness_score = results[-1].score if results else None
+            return output
         diagnostics = pd.DataFrame(index=X.index, columns=X.columns, dtype=float)
         scores = []
         results = []
@@ -260,6 +424,7 @@ class TrustworthinessEstimator(BaseEstimator, TransformerMixin):
                 diagnostics.iloc[position, X.columns.get_loc(name)] = score
         diagnostics[TRUSTWORTHINESS_SCORE_NAME] = scores
         self.aggregation_results_ = results
+        self.structured_results_ = results
         self.aggregation_result_ = results[-1] if results else None
         self.trustworthiness_score = results[-1].score if results else None
         return diagnostics

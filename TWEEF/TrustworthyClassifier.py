@@ -1,35 +1,59 @@
+"""Train a deployable surrogate and evaluate it only on explicit held-out data.
+
+The original estimator is a teacher, never a fallback final predictor. Metric
+references and candidate selection use internal training folds; the optional
+external validation partition is reserved for final postprocessor calibration.
+"""
+from copy import deepcopy
+from dataclasses import dataclass
+from itertools import permutations
+from numbers import Integral
+import warnings
+
 import numpy as np
 import pandas as pd
-from itertools import permutations
 from sklearn.base import BaseEstimator, ClassifierMixin, clone
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.utils.validation import check_is_fitted
 
 from TWEEF.Constants import METRICS, get_metrics_of
 from TWEEF.Metrics import MetricList
 from TWEEF.Aggregation import (
-    AGGREGATION,
-    TRUSTWORTHINESS_SCORE_SCALE,
-    normalize_score_scale,
+    AGGREGATION, TRUSTWORTHINESS_SCORE_SCALE, normalize_score_scale,
+    normalize_metric_weights,
 )
-from TWEEF.ProcessorFairnessPreProcessing import BiasMitigatorPreProcessing
-from TWEEF.ProcessorFairnessPostProcessing import BiasMitigatorPostProcessing
 from TWEEF.ProcessorInterpretability import InterpretabilityProcessing
 from TWEEF.EstimatorTrustworthiness import TrustworthinessEstimator
 from TWEEF.EstimatorFairness import FairnessEstimator
 from TWEEF.EstimatorPerformance import PerformanceEstimator
 from TWEEF.EstimatorInterpretability import InterpretabilityEstimator
 from TWEEF.UtilsFairnessGroup import FairnessGroupUtils, FairnessGroup
-from TWEEF.Validation import drop_invalid_rows, validate_groups, validate_metric_list
+from TWEEF.Validation import validate_metric_list
 from TWEEF.Logging import get_logger
-
+from TWEEF.Predictor import Predictor
+from TWEEF.Evaluation import (
+    make_tabular_preprocessor, frozen_ranking, evaluate_metrics,
+    effective_complexity as compute_effective_complexity, normalize_ec_config,
+)
 
 logger = get_logger(__name__)
+METRIC_NAMES = [METRICS.PERFORMANCE.ACCURACY, METRICS.FAIRNESS.EQUAL_OPPORTUNITY,
+                METRICS.INTERPRETABILITY.EFFECTIVE_COMPLEXITY]
 
 
-class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
+@dataclass
+class EvaluationReport:
+    metrics: dict
+    metrics_frame: pd.DataFrame
+    trustworthiness: object
+    teacher_student_fidelity: dict
+    predictions: pd.Series
+    metadata: dict
 
+
+class TrustworthyClassifier(ClassifierMixin, BaseEstimator):
+    accepts_sensitive_features = True
     def __init__(
         self,
         given_classifier: ClassifierMixin,
@@ -59,6 +83,15 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         effective_complexity_loss_threshold=0.05,
         effective_complexity_repeats=3,
         gwa_hesitation=0.0,
+        surrogate=None,
+        preprocessor=None,
+        metric_weights=None,
+        effective_complexity=None,
+        reference_cv=5,
+        postprocessor=None,
+        reference_metrics=None,
+        selection_candidates=None,
+        surrogate_min_agreement=0.8,
     ):
         self.given_classifier = given_classifier
         self.protected_groups = protected_groups
@@ -88,56 +121,433 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         self.effective_complexity_repeats = effective_complexity_repeats
         self.gwa_hesitation = gwa_hesitation
 
-    def _reset_runtime_state(self):
-        fitted_attributes = [
-            "classifier_",
-            "classes_",
-            "n_features_in_",
-            "feature_names_in_",
-            "diagnosis_",
-            "final_report_",
-            "tradeoffs_",
-            "component_scores_",
-            "trustworthiness_score_",
-            "trustworthiness_score_scale_",
-            "given_algorithm_",
-            "optimization_algorithm_",
-            "is_fitted_",
-        ]
-        for attribute in fitted_attributes:
-            if hasattr(self, attribute):
-                delattr(self, attribute)
+        self.surrogate = surrogate
+        self.preprocessor = preprocessor
+        self.metric_weights = metric_weights
+        self.effective_complexity = effective_complexity
+        self.reference_cv = reference_cv
+        self.postprocessor = postprocessor
+        self.reference_metrics = reference_metrics
+        self.selection_candidates = selection_candidates
+        self.surrogate_min_agreement = surrogate_min_agreement
 
-        self.x_train = None
-        self.x_test = None
-        self.y_train = None
-        self.y_test = None
-        self.transformed_x_train = None
-        self.transformed_x_test = None
-        self.transformed_y_train = None
-        self.transformed_y_test = None
-        self.fairness_processor_pre= None
-        self.fairness_processor_post = None
-        self.relabeled_y_test = None
-        self.explainer = None
-        self.y_predicted_ex = None
-        self.surrogate_r2_error = None
-        self.metrics_pre = None
-        self.metrics_post = None
-        self.trust_estimator_pre = None
-        self.trust_estimator_post = None
-        self.fairness_estimator_pre = None
-        self.fairness_estimator_post = None
-        self.performance_estimator_pre = None
-        self.performance_estimator_post = None
-        self.interpretability_estimator_pre = None
-        self.interpretability_estimator_post = None
-        self.final_model_source_ = None
+    def _reset_runtime_state(self):
+        for name in list(self.__dict__):
+            if name.endswith("_"):
+                delattr(self, name)
+        self.x_test = self.y_test = None
+        self.fairness_processor_pre = self.fairness_processor_post = None
+        self.metrics_pre = self.metrics_post = None
+        self.trust_estimator_pre = self.trust_estimator_post = None
 
     @staticmethod
     def __series_like(values, index, name):
-        array = values.to_numpy() if hasattr(values, "to_numpy") else np.asarray(values)
-        return pd.Series(array.reshape(-1).astype(float), index=index, name=name)
+        return pd.Series(np.asarray(values).reshape(-1).astype(float), index=index, name=name)
+
+    @staticmethod
+    def _xy(X, y):
+        if not isinstance(X, pd.DataFrame) or X.empty or not X.columns.is_unique:
+            raise ValueError("X must be a nonempty DataFrame with unique original feature names.")
+        if not X.index.is_unique:
+            raise ValueError("Observation indices must be unique and stable for reproducible inference.")
+        if isinstance(y, pd.Series) and not y.index.equals(X.index):
+            raise ValueError("y index must match X, including its order.")
+        values = np.asarray(y)
+        if values.ndim != 1 or len(values) != len(X) or not np.isin(values, [0, 1]).all():
+            raise ValueError("This protocol requires complete binary labels 0 and 1 aligned with X.")
+        return X.copy(), pd.Series(values.astype(int), index=X.index, name=getattr(y, "name", None) or "target")
+
+    def _groups(self, X, sensitive_features=None):
+        if sensitive_features is None and self.protected_groups:
+            mask = np.zeros(len(X), dtype=bool)
+            for group in self.protected_groups:
+                for name, values in group.items():
+                    if name not in X:
+                        raise ValueError(f"Missing protected group column {name!r}.")
+                    mask |= X[name].isin(values).to_numpy()
+            sensitive_features = pd.Series(np.where(mask, "protected", "unprotected"), index=X.index)
+        if sensitive_features is None:
+            return None
+        if isinstance(sensitive_features, pd.Series) and not sensitive_features.index.equals(X.index):
+            raise ValueError("sensitive_features index must match X, including its order.")
+        values = np.asarray(sensitive_features)
+        if values.ndim != 1 or len(values) != len(X) or pd.isna(values).any():
+            raise ValueError("sensitive_features must be complete, one-dimensional and aligned with X.")
+        return pd.Series(values, index=X.index, name="sensitive_features")
+
+    def _weights(self):
+        if self.metric_weights is not None and self.metrics is not None:
+            raise ValueError("metric_weights and legacy metrics are mutually exclusive.")
+        if self.metric_weights is not None:
+            weights = dict(self.metric_weights)
+        elif self.metrics is not None:
+            validate_metric_list(self.metrics)
+            weights = dict(zip(self.metrics.get_names(), self.metrics.get_weights()))
+        else:
+            weights = dict.fromkeys(METRIC_NAMES, 1.0 / 3)
+        if not weights or set(weights).difference(METRIC_NAMES):
+            raise ValueError(f"The main pipeline supports these metrics: {METRIC_NAMES!r}.")
+        try:
+            values = np.asarray(list(weights.values()), dtype=float)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("metric weights must be finite and nonnegative.") from exc
+        if not np.isfinite(values).all() or (values < 0).any() or not (values > 0).any():
+            raise ValueError("metric weights must be finite, nonnegative and have positive sum.")
+        return normalize_metric_weights(weights)
+
+    @staticmethod
+    def _strata(y, groups):
+        return y.astype(str) if groups is None else y.astype(str) + ":" + groups.astype(str)
+
+    def _split(self, X, y, groups, size, seed):
+        try:
+            fit, calibration = train_test_split(
+                np.arange(len(X)), test_size=size, random_state=seed,
+                stratify=self._strata(y, groups),
+            )
+        except ValueError as exc:
+            raise ValueError("Insufficient observations to stratify calibration by class and sensitive group.") from exc
+        return (X.iloc[fit], y.iloc[fit], None if groups is None else groups.iloc[fit],
+                X.iloc[calibration], y.iloc[calibration], None if groups is None else groups.iloc[calibration])
+
+    def _new_surrogate(self, override=None):
+        specified = self.surrogate if override is None else override
+        if specified is not None:
+            return clone(specified)
+        from interpret.glassbox import ExplainableBoostingClassifier
+        parameters = dict(interactions=self.surrogate_interactions, random_state=self.random_state, n_jobs=1)
+        if self.surrogate_max_rounds is not None:
+            parameters["max_rounds"] = self.surrogate_max_rounds
+        return ExplainableBoostingClassifier(**parameters)
+
+    def _new_postprocessor(self, specified):
+        if specified is None:
+            return None
+        if isinstance(specified, str):
+            if specified != "calibrated_equalized_odds":
+                raise ValueError("Unknown postprocessor; use calibrated_equalized_odds or an adapter.")
+            from TWEEF.PostProcessing import CalibratedEqualizedOdds
+            return CalibratedEqualizedOdds(
+                random_state=self.random_state, cost_constraint=self.equalize_odds_cost_constraint,
+                threshold=self.equalize_odds_class_thresh,
+            )
+        if not callable(getattr(specified, "fit", None)) or not callable(getattr(specified, "transform", None)):
+            raise TypeError("A postprocessor must implement fit and transform.")
+        return deepcopy(specified)
+
+    def _fit_predictors(self, X, y, groups, calibration, candidate):
+        specified_preprocessor = candidate.get("preprocessor", self.preprocessor)
+        preprocessor = (make_tabular_preprocessor(X) if specified_preprocessor is None
+                        else clone(specified_preprocessor))
+        transformed = preprocessor.fit_transform(X, y)
+        teacher = clone(self.given_classifier).fit(transformed, y)
+        targets = np.asarray(teacher.predict(transformed)).reshape(-1)
+        if not np.isin(targets, [0, 1]).all():
+            raise ValueError("The teacher must predict binary labels 0 and 1; provide a classifier adapter.")
+        surrogate = self._new_surrogate(candidate.get("surrogate"))
+        surrogate.fit(transformed, targets.astype(int))
+        teacher_predictor = Predictor(preprocessor, teacher)
+        base_predictor = Predictor(preprocessor, surrogate)
+        postprocessor = self._new_postprocessor(candidate.get("postprocessor", self.postprocessor))
+        if postprocessor is not None:
+            if calibration is None:
+                raise ValueError("A separate calibration partition is required for postprocessing.")
+            X_cal, y_cal, groups_cal = calibration
+            if groups_cal is None:
+                raise ValueError("Postprocessing requires sensitive_features on calibration data.")
+            postprocessor.fit(base_predictor.predict_proba(X_cal)[:, 1], y_cal,
+                              sensitive_features=groups_cal)
+        predictor = Predictor(preprocessor, surrogate, postprocessor,
+                              threshold=getattr(postprocessor, "threshold", self.equalize_odds_class_thresh))
+        return teacher_predictor, base_predictor, predictor
+
+    def _candidate_configurations(self):
+        if self.selection_candidates is None:
+            return [{}]
+        if not isinstance(self.selection_candidates, (list, tuple)) or not self.selection_candidates:
+            raise ValueError("selection_candidates must be a nonempty sequence of configuration mappings.")
+        result = []
+        allowed = {"surrogate", "preprocessor", "postprocessor"}
+        for candidate in self.selection_candidates:
+            if not hasattr(candidate, "items") or set(candidate).difference(allowed):
+                raise ValueError(f"Candidate overrides must be mappings with keys in {sorted(allowed)!r}.")
+            result.append(dict(candidate))
+        return result
+
+    def _make_trust_estimator(self, mechanism, reference):
+        if mechanism is None:
+            return None
+        # Forward the legacy options even for objects so the estimator can
+        # reject conflicting global settings instead of silently ignoring them.
+        kwargs = dict(aggregation=mechanism, alpha=self.aggregation_alpha,
+                      gwa_hesitation=self.gwa_hesitation,
+                      trustworthiness_score_scale=self.trustworthiness_score_scale)
+        if isinstance(mechanism, str):
+            if self.fuzzy_thresholds is not None:
+                kwargs["fuzzy_thresholds"] = self.fuzzy_thresholds
+                reference = None
+        elif self.fuzzy_thresholds is not None:
+            raise ValueError("An injected mechanism owns calibration; configure thresholds on that object.")
+        return TrustworthinessEstimator(**kwargs).fit(
+            metrics_values=reference, metric_weights=self.metric_weights_,
+        )
+
+    @staticmethod
+    def _score_frame(estimator, frame):
+        if estimator is None:
+            return None
+        # Evaluation must not mutate the frozen preparation or a plugin's state.
+        copied = deepcopy(estimator)
+        copied.transform(frame)
+        return copied.aggregation_results_[0]
+
+    def fit(self, X, y, *, sensitive_features=None, validation_data=None,
+            validation_sensitive_features=None):
+        """Fit the teacher and final surrogate without accepting evaluation/test data.
+
+        External validation data are used only to calibrate the final optional
+        postprocessor. Selection and metric references use training folds. If no
+        validation data are supplied, reserve an internal calibration partition.
+        """
+        self._reset_runtime_state()
+        X, y = self._xy(X, y)
+        groups = self._groups(X, sensitive_features)
+        self.metric_weights_ = self._weights()
+        for name in ("surrogate_min_agreement", "fairness_threshold"):
+            value = getattr(self, name)
+            if not isinstance(value, (int, float)) or not np.isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"{name} must be finite and in [0, 1].")
+        if self.surrogate_min_r2 != 0.8:
+            warnings.warn("surrogate_min_r2 is deprecated and ignored: classification fidelity uses "
+                          "surrogate_min_agreement, measured without fitting on evaluation data.",
+                          FutureWarning, stacklevel=2)
+        if self.metric_weights_.get(METRICS.FAIRNESS.EQUAL_OPPORTUNITY, 0) > 0 and groups is None:
+            raise ValueError("A positive fairness weight requires sensitive_features or legacy protected_groups.")
+        self.ec_config_ = normalize_ec_config(self.effective_complexity or {
+            "loss_threshold": self.effective_complexity_loss_threshold,
+            "repeats": self.effective_complexity_repeats,
+        })
+        if self.disparate_impact_repair_level:
+            warnings.warn(
+                "Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. "
+                "Inject a reusable preprocessor to request inductive preprocessing mitigation.",
+                FutureWarning, stacklevel=2,
+            )
+        if validation_data is None:
+            warnings.warn("test_size is a deprecated name for the internal calibration fraction; "
+                          "no test data are consumed by fit.", FutureWarning, stacklevel=2)
+            if validation_sensitive_features is not None:
+                raise ValueError("validation_sensitive_features requires validation_data.")
+            X, y, groups, X_cal, y_cal, groups_cal = self._split(X, y, groups, self.test_size, self.random_state)
+            calibration = (X_cal, y_cal, groups_cal)
+            calibration_source = "internal_training_split"
+        else:
+            if not isinstance(validation_data, (tuple, list)) or len(validation_data) != 2:
+                raise ValueError("validation_data must be an (X, y) pair reserved for calibration.")
+            X_cal, y_cal = self._xy(*validation_data)
+            if set(X_cal.columns) != set(X.columns):
+                raise ValueError("Calibration features must match training features.")
+            X_cal = X_cal.loc[:, X.columns]
+            if X.index.intersection(X_cal.index).size:
+                raise ValueError("Training and calibration must have disjoint stable observation indices.")
+            groups_cal = self._groups(X_cal, validation_sensitive_features)
+            calibration = (X_cal, y_cal, groups_cal)
+            calibration_source = "external_calibration"
+        self.classes_ = np.array([0, 1])
+        self.feature_names_in_ = X.columns.to_numpy(copy=True)
+        self.n_features_in_ = X.shape[1]
+        self.x_train, self.y_train = X.copy(), y.copy()
+        self.training_index_ = X.index.to_numpy(copy=True)
+        self.calibration_index_ = calibration[0].index.to_numpy(copy=True)
+        candidates = self._candidate_configurations()
+        if not isinstance(self.reference_cv, Integral) or self.reference_cv < 2:
+            raise ValueError("reference_cv must be an integer of at least 2.")
+        strata = self._strata(y, groups)
+        if strata.value_counts().min() < self.reference_cv:
+            raise ValueError("Each class/group stratum needs at least reference_cv observations.")
+        splitter = StratifiedKFold(self.reference_cv, shuffle=True, random_state=self.random_state)
+        # Materialize once: with random_state=None, separate split() calls would
+        # otherwise compare candidates on different observations.
+        folds = list(splitter.split(X, strata))
+        rows, audit = [], []
+        for candidate_number, candidate in enumerate(candidates):
+            for fold, (fit_index, score_index) in enumerate(folds):
+                X_fit, y_fit = X.iloc[fit_index], y.iloc[fit_index]
+                groups_fit = None if groups is None else groups.iloc[fit_index]
+                fold_calibration = None
+                if candidate.get("postprocessor", self.postprocessor) is not None:
+                    X_fit, y_fit, groups_fit, X_inner_cal, y_inner_cal, groups_inner_cal = self._split(
+                        X_fit, y_fit, groups_fit, 0.25, (self.random_state or 0) + fold,
+                    )
+                    fold_calibration = (X_inner_cal, y_inner_cal, groups_inner_cal)
+                _, _, predictor = self._fit_predictors(X_fit, y_fit, groups_fit, fold_calibration, candidate)
+                ranking = frozen_ranking(predictor, X_fit, y_fit, groups=groups_fit,
+                                         random_state=self.random_state or 0)
+                X_score, y_score = X.iloc[score_index], y.iloc[score_index]
+                groups_score = None if groups is None else groups.iloc[score_index]
+                values = evaluate_metrics(predictor, X_score, y_score, groups_score, ranking,
+                                          ec_config=self.ec_config_, random_state=self.random_state or 0)
+                rows.append({name: values[name] for name in self.metric_weights_})
+                audit.append({"candidate": candidate_number, "fold": fold,
+                              "fit_index": X_fit.index.tolist(),
+                              "calibration_index": [] if fold_calibration is None else fold_calibration[0].index.tolist(),
+                              "score_index": X_score.index.tolist(), "ranking": ranking})
+        self.reference_metrics_ = pd.DataFrame(rows)
+        self.reference_audit_ = audit
+        configured_reference = self.reference_metrics
+        if configured_reference is not None and self.metrics_values is not None:
+            raise ValueError("reference_metrics and metrics_values are aliases; provide only one.")
+        if configured_reference is None:
+            configured_reference = self.metrics_values
+        reference = self.reference_metrics_ if configured_reference is None else configured_reference
+        self.trust_estimator_ = self._make_trust_estimator(self.aggregation, reference)
+        self.aggregation_reference_ = reference.copy(deep=True)
+        selection_rows = []
+        if len(candidates) > 1 and self.trust_estimator_ is None:
+            raise ValueError("Candidate selection requires a mechanism; select externally when aggregation=None.")
+        selected = 0
+        for number in range(len(candidates)):
+            candidate_rows = self.reference_metrics_.iloc[number * self.reference_cv:(number + 1) * self.reference_cv]
+            if self.trust_estimator_ is None:
+                scores = []
+                utility = None
+            else:
+                results = [self._score_frame(self.trust_estimator_, candidate_rows.iloc[[i]])
+                           for i in range(len(candidate_rows))]
+                scores = [result.score for result in results]
+                higher = getattr(results[0], "higher_is_better", True)
+                utility = float(np.mean(scores)) * (1 if higher else -1)
+            selection_rows.append({"candidate": number, "fold_scores": scores, "utility": utility})
+        if len(candidates) > 1:
+            selected = max(range(len(candidates)), key=lambda i: selection_rows[i]["utility"])
+        self.selected_candidate_ = selected
+        self.selection_report_ = pd.DataFrame(selection_rows)
+        teacher, base, final = self._fit_predictors(X, y, groups, calibration, candidates[selected])
+        self.teacher_predictor_, self.surrogate_predictor_, self.predictor_ = teacher, base, final
+        self.preprocessor_ = final.preprocessor
+        self.teacher_, self.surrogate_ = teacher.model, final.model
+        self.postprocessor_ = final.postprocessor
+        self.classifier_ = self.surrogate_
+        self.given_algorithm_ = self.teacher_
+        self.final_model_source_ = "surrogate"
+        self.fairness_processor_post = self.postprocessor_
+        # Prepare the final ranking only after the complete prediction chain exists.
+        self.ranking_ = frozen_ranking(final, X, y, groups=groups, random_state=self.random_state or 0)
+        self.feature_ranking_ = list(self.ranking_)
+        self.teacher_ranking_ = frozen_ranking(teacher, X, y, groups=groups, random_state=self.random_state or 0)
+        self.fit_metadata_ = {
+            "calibration_source": calibration_source,
+            "reference_source": "training_internal_cv" if configured_reference is None else "explicit_reference",
+            "reference_cv": self.reference_cv, "candidate_count": len(candidates),
+            "candidate_fit_budget": len(candidates) * self.reference_cv,
+            "final_fit_count": 1, "selection_tie_policy": "first_candidate",
+            "final_predictor": "surrogate", "test_used": False,
+            "legacy_dir_applied": False, "effective_complexity": deepcopy(self.ec_config_),
+            "postprocessing": deepcopy(getattr(self.postprocessor_, "diagnostics_", None)),
+            "metric_weights": deepcopy(self.metric_weights_),
+        }
+        self.is_fitted_ = True
+        return self
+
+    def set_aggregation(self, mechanism, *, reference_metrics=None):
+        """Prepare a mechanism after predictor fitting, e.g. with a shared reference."""
+        check_is_fitted(self, "predictor_")
+        reference = self.reference_metrics_ if reference_metrics is None else reference_metrics
+        estimator = self._make_trust_estimator(mechanism, reference)
+        self.aggregation = mechanism
+        self.trust_estimator_ = estimator
+        self.aggregation_reference_ = None if reference is None else reference.copy(deep=True)
+        return self
+
+    def predict(self, X, *, sensitive_features=None):
+        check_is_fitted(self, "predictor_")
+        return self.predictor_.predict(X, sensitive_features=self._groups(X, sensitive_features))
+
+    def predict_proba(self, X, *, sensitive_features=None):
+        check_is_fitted(self, "predictor_")
+        return self.predictor_.predict_proba(X, sensitive_features=self._groups(X, sensitive_features))
+
+    def score(self, X, y, sample_weight=None, *, sensitive_features=None):
+        return accuracy_score(y, self.predict(X, sensitive_features=sensitive_features), sample_weight=sample_weight)
+
+    @staticmethod
+    def _metric_list(values, weights):
+        result = MetricList()
+        for name, value in values.items():
+            result.add_metric(name, weights.get(name, 0.0), goal=0.0, value=value)
+        return result
+
+    def evaluate(self, X, y, *, sensitive_features=None):
+        """Evaluate the frozen final chain; never fit or select on these data."""
+        check_is_fitted(self, "predictor_")
+        X, y = self._xy(X, y)
+        groups = self._groups(X, sensitive_features)
+        values = evaluate_metrics(self.predictor_, X, y, groups, self.ranking_,
+                                  ec_config=self.ec_config_, random_state=self.random_state or 0)
+        requested = {name: values[name] for name in self.metric_weights_}
+        metrics_frame = pd.DataFrame([requested])
+        result = self._score_frame(self.trust_estimator_, metrics_frame)
+        teacher_predictions = self.teacher_predictor_.predict(X)
+        base_predictions = self.surrogate_predictor_.predict(X)
+        final_predictions = self.predictor_.predict(X, sensitive_features=groups)
+        fidelity = {
+            "teacher_student_class_agreement": float(np.mean(teacher_predictions == base_predictions)),
+            "teacher_final_class_agreement": float(np.mean(teacher_predictions == final_predictions)),
+            "teacher_accuracy": float(np.mean(teacher_predictions == y.to_numpy())),
+            "student_before_postprocessing_accuracy": float(np.mean(base_predictions == y.to_numpy())),
+            "final_accuracy": float(np.mean(final_predictions == y.to_numpy())),
+        }
+        fidelity["minimum_class_agreement"] = self.surrogate_min_agreement
+        fidelity["objective_met"] = bool(fidelity["teacher_student_class_agreement"] >= self.surrogate_min_agreement)
+        fairness_value = values[METRICS.FAIRNESS.EQUAL_OPPORTUNITY]
+        fairness_objective = {
+            "threshold": self.fairness_threshold,
+            "observed": fairness_value,
+            "objective_met": None if not np.isfinite(fairness_value) else bool(fairness_value >= self.fairness_threshold),
+        }
+        _, ec_details = compute_effective_complexity(
+            self.predictor_, X, self.ranking_, ec_config=self.ec_config_,
+            random_state=self.random_state or 0, groups=groups,
+        )
+        report = EvaluationReport(
+            metrics=values, metrics_frame=metrics_frame, trustworthiness=result,
+            teacher_student_fidelity=fidelity,
+            predictions=pd.Series(final_predictions, index=X.index, name="prediction"),
+            metadata={**deepcopy(self.fit_metadata_), "evaluation_index": X.index.tolist(),
+                      "effective_complexity_details": ec_details,
+                      "teacher_student_fidelity_loss": "class_disagreement",
+                      "mechanism": deepcopy(getattr(self.trust_estimator_, "mechanism_metadata_", None)),
+                      "fairness_objective": fairness_objective,
+                      "fidelity_objective_met": fidelity["objective_met"]},
+        )
+        self.last_report_ = report
+        self.metrics_post = self._metric_list(requested, self.metric_weights_)
+        # Teacher diagnosis includes only metrics comparable to the final chain.
+        teacher_values = {METRICS.PERFORMANCE.ACCURACY: fidelity["teacher_accuracy"]}
+        if groups is not None:
+            tprs = [np.mean(teacher_predictions[(groups.to_numpy() == group) & (y.to_numpy() == 1)] == 1)
+                    for group in pd.unique(groups)]
+            teacher_values[METRICS.FAIRNESS.EQUAL_OPPORTUNITY] = 1.0 - abs(tprs[0] - tprs[1])
+        self.metrics_pre = self._metric_list(teacher_values, self.metric_weights_)
+        self.trustworthiness_score_ = None if result is None else result.score
+        self.component_scores_ = self._component_scores()
+        self.final_report_ = report
+        return report
+
+    def unbiased_dataset(self):
+        raise RuntimeError("The inductive predictor does not relabel true outcomes. Use predict/evaluate explicitly.")
+
+    def trustworthiness_diagnosis(self):
+        if self.metrics_pre is None:
+            raise RuntimeError("Call evaluate on held-out data before requesting a diagnosis.")
+        return self.metrics_pre.to_dataframe()
+
+    def trustworthiness_metrics(self):
+        if self.metrics_post is None:
+            raise RuntimeError("Call evaluate on held-out data before requesting a metrics report.")
+        frame = self.metrics_post.to_dataframe()
+        frame["trustworthiness"] = self.trustworthiness_score_
+        return frame
 
     def get_metrics_weights(self, metrics: MetricList):
         """
@@ -260,380 +670,6 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
             fairness_estimator,
             interpretability_estimator,
         )
-
-    def __preprocessing_fairness(self):
-        logger.info("Create preprocessing bias mitigator")
-        mitigator = BiasMitigatorPreProcessing()
-        logger.info("Apply disparate impact removal on original data")
-        self.fairness_processor_pre= mitigator.preprocess_disparate_impact_removal(
-            self.x_train,
-            self.x_test,
-            self.y_train,
-            self.y_test,
-            self.y_test.name,  # label name
-            self.protected_groups,
-            self.unprotected_groups,
-            self.protected_classes,
-            self.disparate_impact_repair_level,
-        )
-        logger.info("Store transformed preprocessing data")
-        self.transformed_x_train = mitigator.transformed_x_train
-        self.transformed_x_test = mitigator.transformed_x_test
-        self.transformed_y_train = mitigator.transformed_y_train
-        self.transformed_y_test = mitigator.transformed_y_test
-        self.fairness_processor_pre= mitigator
-
-    def __surrogate_model_train(self):
-        """
-        Train a surrogate model for explanations generation
-        """
-        self.explainer = InterpretabilityProcessing(
-            min_r2=self.surrogate_min_r2,
-            max_iterations=self.surrogate_max_iter,
-            ec_threshold=self.effective_complexity_threshold,
-            effective_complexity_mode=self.effective_complexity_mode,
-            effective_complexity_loss_threshold=(
-                self.effective_complexity_loss_threshold
-            ),
-            effective_complexity_repeats=self.effective_complexity_repeats,
-            random_state=self.random_state or 0,
-            ebm_interactions=self.surrogate_interactions,
-            ebm_max_rounds=self.surrogate_max_rounds,
-        )
-        self.y_predicted_ex = self.explainer.surrogate_model_train(
-            self.optimization_algorithm_,
-            self.transformed_x_train,
-            self.transformed_x_test,
-            self.transformed_y_train,
-            self.transformed_y_test,
-        )
-        self.surrogate_r2_error = self.explainer.surrogate_r2_error
-
-    def __postprocessing_fairness(self, y_pred: pd.Series):
-        logger.info("Create postprocessing bias mitigator")
-        mitigator = BiasMitigatorPostProcessing(
-            cost_constraint=self.equalize_odds_cost_constraint
-        )
-        prediction_scores = None
-        if hasattr(self.explainer.explainable_classifier, "predict_proba"):
-            classes = list(self.explainer.explainable_classifier.classes_)
-            favorable_label = self.protected_classes[0]
-            if favorable_label in classes:
-                prediction_scores = self.explainer.explainable_classifier.predict_proba(
-                    self.transformed_x_test
-                )[:, classes.index(favorable_label)]
-        logger.info("Apply equalized odds postprocessing")
-        self.relabeled_y_test = mitigator.postprocess_equalize_odds(
-            self.transformed_x_train,
-            self.transformed_x_test,
-            self.transformed_y_train,
-            self.transformed_y_test,
-            y_pred,
-            y_pred.name,
-            self.protected_groups,
-            self.unprotected_groups,
-            self.protected_classes,
-            prediction_scores=prediction_scores,
-            # self.equalize_odds_class_thresh
-        )
-        self.fairness_processor_post = mitigator
-
-    def __capture_post_state(self):
-        return {
-            "relabeled_y_test": self.relabeled_y_test.copy(),
-            "trust_estimator_post": self.trust_estimator_post,
-            "performance_estimator_post": self.performance_estimator_post,
-            "fairness_estimator_post": self.fairness_estimator_post,
-            "interpretability_estimator_post": self.interpretability_estimator_post,
-            "metrics_post": self.metrics_post.copy(),
-            "fairness_processor_post": self.fairness_processor_post,
-        }
-
-    def __restore_post_state(self, state):
-        self.relabeled_y_test = state["relabeled_y_test"]
-        self.trust_estimator_post = state["trust_estimator_post"]
-        self.performance_estimator_post = state["performance_estimator_post"]
-        self.fairness_estimator_post = state["fairness_estimator_post"]
-        self.interpretability_estimator_post = state["interpretability_estimator_post"]
-        self.metrics_post = state["metrics_post"]
-        self.fairness_processor_post = state["fairness_processor_post"]
-
-    def __fairness_validation(self):
-        # self.y_predicted_ex must be computed from surogate model training.
-        logger.info("Start fairness validation")
-        max_iterations = self.fairness_max_iter
-        fairness_threshold = self.fairness_threshold
-        iteration = 0
-        actual_fairness = 0
-        best_state = None
-        best_score = float("-inf")
-        # initialize the relabeled_y_test with the predictions from the explanaible surogate model
-        self.relabeled_y_test = self.y_predicted_ex
-
-        (
-            self.trust_estimator_post,
-            self.performance_estimator_post,
-            self.fairness_estimator_post,
-            self.interpretability_estimator_post,
-        ) = self.__compute_trust(
-            self.explainer.explainable_classifier,
-            self.metrics_post,
-            self.transformed_x_train,
-            self.transformed_x_test,
-            self.transformed_y_train,
-            self.transformed_y_test,
-            y_predicted=self.relabeled_y_test,
-            fit_model=False,
-        )
-        best_state = self.__capture_post_state()
-        best_score = self.trust_estimator_post.trustworthiness_score
-        fairness_metrics_values = [
-            metric.value
-            for metric in self.metrics_post.get_metrics()
-            if metric.name in get_metrics_of(METRICS.FAIRNESS)
-        ]
-        actual_fairness = min(fairness_metrics_values) if fairness_metrics_values else 1
-        logger.info(
-            "Fairness validation baseline: minimum fairness=%s, trustworthiness=%s",
-            actual_fairness,
-            best_score,
-        )
-
-        while iteration < max_iterations and actual_fairness < fairness_threshold:
-            logger.info("Fairness validation iteration %s", iteration)
-            # this will update self.relabeled_y_test applying equalize_odds
-            self.__postprocessing_fairness(self.relabeled_y_test)
-            (
-                self.trust_estimator_post,
-                self.performance_estimator_post,
-                self.fairness_estimator_post,
-                self.interpretability_estimator_post,
-            ) = self.__compute_trust(
-                self.explainer.explainable_classifier,
-                self.metrics_post,
-                self.transformed_x_train,
-                self.transformed_x_test,
-                self.transformed_y_train,
-                self.transformed_y_test,
-                y_predicted=self.relabeled_y_test,
-                fit_model=False,
-            )
-            logger.info("Estimate fairness after postprocessing")
-            fairness_metrics_values = [
-                metric.value
-                for metric in self.metrics_post.get_metrics()
-                if metric.name in get_metrics_of(METRICS.FAIRNESS)
-            ]
-            logger.info("Fairness score values: %s", fairness_metrics_values)
-            actual_fairness = min(fairness_metrics_values)
-            trust_score = self.trust_estimator_post.trustworthiness_score
-            logger.info("Candidate trustworthiness score: %s", trust_score)
-            if trust_score > best_score:
-                best_score = trust_score
-                best_state = self.__capture_post_state()
-                logger.info("Accepted new best postprocessing candidate")
-            logger.info("Minimum fairness metric value: %s", actual_fairness)
-            iteration = iteration + 1
-
-        if iteration == max_iterations and actual_fairness < fairness_threshold:
-            logger.warning("Postprocessing fairness assessment did not converge")
-
-        if best_state is not None:
-            self.__restore_post_state(best_state)
-            logger.info("Restored best postprocessing candidate: trustworthiness=%s", best_score)
-
-        logger.info("Fairness validation terminated")
-
-    def __retain_diagnosis_as_final(self):
-        logger.warning(
-            "Best TWEEF candidate trustworthiness=%s is below diagnosis=%s. "
-            "Retaining diagnosis model as final result.",
-            self.trust_estimator_post.trustworthiness_score,
-            self.trust_estimator_pre.trustworthiness_score,
-        )
-        self.metrics_post = self.metrics_pre.copy()
-        self.trust_estimator_post = self.trust_estimator_pre
-        self.performance_estimator_post = self.performance_estimator_pre
-        self.fairness_estimator_post = self.fairness_estimator_pre
-        self.interpretability_estimator_post = self.interpretability_estimator_pre
-        self.fairness_processor_post = None
-        self.classifier_ = self.given_algorithm_
-        self.final_model_source_ = "diagnosis"
-        self.relabeled_y_test = self.__series_like(
-            self.given_algorithm_.predict(self.x_test),
-            self.y_test.index,
-            self.y_test.name,
-        )
-
-    def __prepare_training_data(self, X, y):
-        if X is None or y is None:
-            raise ValueError("X and y must be provided together.")
-
-        X, y = drop_invalid_rows(X, y, self.protected_groups)
-        validate_groups(X, self.protected_groups, self.unprotected_groups)
-        self.n_features_in_ = X.shape[1]
-        self.feature_names_in_ = np.asarray(X.columns, dtype=object)
-        self.classes_ = np.unique(y)
-
-        stratify_values = y if self.stratify else None
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
-            X,
-            y,
-            test_size=self.test_size,
-            stratify=stratify_values,
-            random_state=self.random_state,
-        )
-
-    def fit(self, X, y):
-        """
-        Trains the trustworthy classifier as a surrogate model that learns from a given model.
-
-        This function performs the following steps:
-        1. Compute trustworthiness metrics for the given model.
-        2. Apply pre-processing fairness algorithm.
-        3. Train the surrogate model.
-        4. Apply post-processing fairness validation.
-        5. Compute trustworthiness metrics for the surrogate model.
-
-        Returns:
-        --------
-        self
-            The fitted trustworthy classifier.
-        """
-        self._reset_runtime_state()
-        if self.metrics_values is not None and self.fuzzy_thresholds is not None:
-            raise ValueError(
-                "metrics_values and fuzzy_thresholds cannot be provided together."
-            )
-        self.trustworthiness_score_scale_ = normalize_score_scale(
-            self.trustworthiness_score_scale
-        )
-        self.given_algorithm_ = clone(self.given_classifier)
-        self.optimization_algorithm_ = clone(self.given_classifier)
-
-        logger.info("Stage 1: trustworthiness diagnosis")
-        self.__prepare_training_data(X, y)
-        if self.metrics is None:
-            raise ValueError("metrics must be provided before fitting the classifier.")
-        validate_metric_list(self.metrics)
-        validate_groups(self.x_train, self.protected_groups, self.unprotected_groups)
-        validate_groups(self.x_test, self.protected_groups, self.unprotected_groups)
-        self.metrics_pre = self.metrics.copy()
-        self.metrics_post = self.metrics.copy()
-
-        logger.info("Compute initial trustworthiness metrics")
-        (
-            self.trust_estimator_pre,
-            self.performance_estimator_pre,
-            self.fairness_estimator_pre,
-            self.interpretability_estimator_pre,
-        ) = self.__compute_trust(
-            self.given_algorithm_,
-            self.metrics_pre,
-            self.x_train,
-            self.x_test,
-            self.y_train,
-            self.y_test,
-        )
-        logger.info("Apply preprocessing fairness algorithm")
-        self.__preprocessing_fairness()
-
-        logger.info("Stage 2: train given model and surrogate model")
-        self.__surrogate_model_train()
-
-        logger.info("Stage 3: fairness postprocessing validation")
-        self.__fairness_validation()
-
-        self.classifier_ = self.explainer.explainable_classifier
-        self.final_model_source_ = "tweef"
-        if (
-            self.trust_estimator_pre is not None
-            and self.trust_estimator_post.trustworthiness_score
-            < self.trust_estimator_pre.trustworthiness_score
-        ):
-            self.__retain_diagnosis_as_final()
-        self.component_scores_ = self._component_scores()
-        self.diagnosis_ = self.trustworthiness_diagnosis()
-        self.final_report_ = self.component_scores_
-        self.tradeoffs_ = self.dimension_tradeoffs()
-        self.trustworthiness_score_ = self.trust_estimator_post.trustworthiness_score
-        self.is_fitted_ = True
-        return self
-
-    def predict(self, x: pd.DataFrame):
-        """
-        Predicts the labels for the given data, using the previously trained explainable classifier.
-
-        Parameters:
-        -----------
-        x (DataFrame): The input data.
-
-        Returns:
-        --------
-        Series
-            The predicted labels.
-        """
-        check_is_fitted(self, "classifier_")
-        check_is_fitted(self.classifier_)
-        return self.classifier_.predict(x)
-
-    def predict_proba(self, x: pd.DataFrame):
-        """
-        Predicts class probabilities when the final classifier supports them.
-        """
-        check_is_fitted(self, "classifier_")
-        if not hasattr(self.classifier_, "predict_proba"):
-            raise AttributeError(
-                f"{type(self.classifier_).__name__} does not support predict_proba."
-            )
-        return self.classifier_.predict_proba(x)
-
-    def score(self, X, y, sample_weight=None):
-        """
-        Returns accuracy for scikit-learn compatibility.
-        """
-        check_is_fitted(self, "classifier_")
-        y_predicted = self.predict(X)
-        return accuracy_score(y, y_predicted, sample_weight=sample_weight)
-
-    # #OUTPUTS =====================================================================
-
-    def unbiased_dataset(self):
-        """
-        Returns the unbiased dataset after applying the pre-processing fairness algorithm.
-        """
-        check_is_fitted(self, "classifier_")
-        data = pd.concat([self.transformed_x_train, self.transformed_x_test])
-        data[self.transformed_y_train.name] = pd.concat(
-            [self.transformed_y_train, self.relabeled_y_test]
-        )
-        return data
-
-    def trustworthiness_diagnosis(self):
-        """
-        Returns the trustworthiness metrics for the given classifier
-        """
-        check_is_fitted(self, "classifier_")
-        report = self.metrics_pre.to_dataframe()
-        report["trustworthiness"] = self.trust_estimator_pre.trustworthiness_score
-        report["trustworthiness_scale"] = (
-            self.trust_estimator_pre.trustworthiness_score_scale
-        )
-        report["aggregation"] = self.trust_estimator_pre.aggregation
-        return report
-
-    def trustworthiness_metrics(self):
-        """
-        Returns the final trustworthiness metrics for the trustworthy classifier
-        """
-        check_is_fitted(self, "classifier_")
-        report = self.metrics_post.to_dataframe()
-        report["trustworthiness"] = self.trust_estimator_post.trustworthiness_score
-        report["trustworthiness_scale"] = (
-            self.trust_estimator_post.trustworthiness_score_scale
-        )
-        report["aggregation"] = self.trust_estimator_post.aggregation
-        return report
 
     def _component_scores(self):
         check_is_fitted(self, "classifier_")
@@ -786,10 +822,10 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         check_is_fitted(self, "classifier_")
         equalized_odds = None
         if self.fairness_processor_post is not None:
-            equalized_odds = self.fairness_processor_post.equalized_odds
+            equalized_odds = getattr(self.fairness_processor_post, "diagnostics_", None)
         return pd.DataFrame(
             [{
-                "disparate_impact": self.fairness_processor_pre.disparate_impact,
+                "disparate_impact": None,
                 "equalized_odds"  : equalized_odds,
             }]
         )
@@ -802,8 +838,10 @@ class TrustworthyClassifier(BaseEstimator, ClassifierMixin):
         check_is_fitted(self, "classifier_")
         performance_metrics = []
 
-        for metric_pre, metric_post in zip(self.metrics_pre.metrics, self.metrics_post.metrics):
-            if metric_pre.name in get_metrics_of(METRICS.PERFORMANCE):
+        final_by_name = {metric.name: metric for metric in self.metrics_post.metrics}
+        for metric_pre in self.metrics_pre.metrics:
+            if metric_pre.name in get_metrics_of(METRICS.PERFORMANCE) and metric_pre.name in final_by_name:
+                metric_post = final_by_name[metric_pre.name]
                 value = 0
                 if metric_pre.value != 0:
                     value = (metric_pre.value - metric_post.value)/metric_pre.value
