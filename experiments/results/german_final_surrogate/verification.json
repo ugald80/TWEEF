@@ -1,0 +1,117 @@
+{
+  "passed": true,
+  "output": "/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/results/german_final_surrogate",
+  "verifier_sha256": "459ab3369372f738f856974f4c088e708c4185ffd1dcb8cde1113a3baf3356a5",
+  "checks": [
+    {
+      "name": "completed_summary",
+      "passed": true
+    },
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "complete_main_protocol",
+      "passed": true
+    },
+    {
+      "name": "source_identity_and_environment",
+      "passed": true
+    },
+    {
+      "name": "seed_0_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_1_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_2_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_3_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_4_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_5_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_6_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_7_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_8_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "seed_9_cache_splits_provenance_predictions_ec_cv",
+      "passed": true
+    },
+    {
+      "name": "completed_main_counts",
+      "passed": true
+    },
+    {
+      "name": "exported_tables_and_mechanism_recomputation",
+      "passed": true
+    },
+    {
+      "name": "historical_teacher_and_split_identity",
+      "passed": true
+    },
+    {
+      "name": "source_still_matches_after_audit",
+      "passed": true
+    }
+  ],
+  "artifacts_sha256": {
+    "summary.json": "a4db5c36aa2bcea04ca5ad2d0d415e80eedd5b6512fcea7d1d5e2ee2934dcecb",
+    "manifest.json": "88b8b75221a9a760fa5976e88881d0bc5b232b8b7f89c4449e01669884f12c9e",
+    "seed_0.json": "dba0795d7006fab229b898cfbe60e596f84ebff12324c4a178bf91f9e51207b9",
+    "seed_1.json": "a065b0aafc68e0171b6fe715b6105f1d2c0a41109e23e1920cc0bbc98a154956",
+    "seed_2.json": "306674f9f7bc5c99368bec5cf4109c0bc49b6f44817014eb8250b003d2181f74",
+    "seed_3.json": "05db9e4c725db0975004c37cce9c7117a60d8d088d42bb6fb9842ea6750b45cd",
+    "seed_4.json": "262c8961c0b4aee11abba835d2a92d9e5e94e5211a4c824a51afe0e64692c07a",
+    "seed_5.json": "7e0ea29c1f4a16184e048a7e9ba5cb50967105fac8aaa8843e108b29ca03e90f",
+    "seed_6.json": "bf92e20e4134e28907eda6a496cbcd8dee80e3a600d437ea846637580a03c8ac",
+    "seed_7.json": "811fa5461848acfa5b78bbe84dadfa9e45e5eedcd451100855f629c9cddf4fd4",
+    "seed_8.json": "e186256ad5ef4d6eed2099675648dad986931484af58cf2447a4d0296e63630a",
+    "seed_9.json": "ca10db80f89b12069fcd704dad55d81599f8681b81856df16f8e13ece17cba92",
+    "mechanism_scores.csv": "be800dd61c49e362f15c7977b8afe1ef26eaa5466ac26b5be44f4d34a2bd365e",
+    "full_flow_selections.csv": "6c1fc99d7ed42f34c902a6b6f5526226c384174032707bb9b85836fd6d7ec697",
+    "reference_metrics.csv": "8bc38871fddafbba846018cc1651f9edcfdfe88bb817cae6bc5b26bf17bc855c",
+    "raw_metrics.csv": "46214fc267ff2d583834847e1b26b8769fc7153f88669d80151f6ab6ec49a6ab",
+    "fidelity.csv": "8805ebb16e327d2a88139ec38952b29ab6c978ff7c6dcc05c65b5c3380ce8417",
+    "metrics_by_model.csv": "9c8a32ad99db228c8a7bbfe5ac89cd7833d5fdd100ee7a8d3ee1379abd5e3d61",
+    "mechanisms_by_model.csv": "68a4a4e3ef4d173578eaeefc0bc4679b5bb7b0a21c7cff3c3c9304aaa7eb2113",
+    "mechanism_rankings.csv": "a67197e84f2d7727eac8a60e851f86b1c271d53b2ab723ac335cbb6671557162",
+    "rank_agreement.csv": "c8280211d3a7f6bbfe5ee5f3b9049827032cc5196d72bc5bb800cc77f014c1c0",
+    "protocol_comparison.csv": "2b1733b0ef4fe860c7411a1e1215e34594da583b889109f5d4ce99d8a26aabc2",
+    "historical_predictive_comparison.csv": "acc94bb40dd8a956d1deb86cbc0909779e5cdc859d08eb0fd71e89479a9d3ee0",
+    "german_final_surrogate.png": "fff7065f593ecfae5af76f56afcca06cc8f3141025160a925bf13b3103466b64",
+    "historical_teacher_audit.csv": "56af6eedb6204b0de8a96cccfa5379239dca1245cb62740978640dab2cf841a4",
+    "experiments/results/german_ec_kl/metrics_seed_0.json": "0292379934ac9581fcec79f36c8b41d99d7ec08a128ef26892fac2181dd7a419",
+    "experiments/results/german_ec_kl/metrics_seed_1.json": "8057fbf1fcd44d73f6254c538d96cd1f8c53a4c262058bf8bd4e6d9ce8e04ae3",
+    "experiments/results/german_ec_kl/metrics_seed_2.json": "c2a5740382c053b87407474dedbe95412cb5f94940e55342ba53841c8e8565cc",
+    "experiments/results/german_ec_kl/metrics_seed_3.json": "fa66ff475b091d2b951871e25b59a3cceea491bd4e7f9a2a8829a98ea3335e3d",
+    "experiments/results/german_ec_kl/metrics_seed_4.json": "257f510644c1331db0a8541fb7a005415a2b2dc78490721dedc3f98a26778878",
+    "experiments/results/german_ec_kl/metrics_seed_5.json": "5f37523b98f742a8112afdb2dd63bce611b2b7593a6119a4f8b040b1d132ccea",
+    "experiments/results/german_ec_kl/metrics_seed_6.json": "7e20336b2dbead9f530b4b9c54a9bc0e5805c384cce93b4ea05c370eb2f8a0b8",
+    "experiments/results/german_ec_kl/metrics_seed_7.json": "c6b45338d6ab3525b8b5265397913989ce2302da4e563afcac22405d92f4354f",
+    "experiments/results/german_ec_kl/metrics_seed_8.json": "9518b20b00bcef3ddbe75f895871859bfcba651f4673bd2dab58abb2349f6247",
+    "experiments/results/german_ec_kl/metrics_seed_9.json": "b4ae606dfd410524e24b79f63fef3fcc03da9fbe3b719a97c5247ae88d07634c"
+  },
+  "limits": "Recomputes aggregation/CV selection and saved prediction consistency; does not refit models or regenerate EC perturbation predictions."
+}

@@ -1,0 +1,48 @@
+........................................................................ [ 30%]
+........................................................................ [ 61%]
+........................................................................ [ 92%]
+..................                                                       [100%]
+=============================== warnings summary ===============================
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+test/test_classifier_hesitation.py::test_classifier_clone_and_assessment_preserve_hesitation
+  /Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/base.py:493: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+    warnings.warn(
+
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+  /Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/matplotlib/_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
+
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+  /Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+  /Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+test/test_inductive_classifier.py::test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero
+  /Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+test/test_trustworthy_classifier.py::test_real_german_final_surrogate_can_be_deployed
+  /Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/example_final_surrogate.py:71: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+    workflow.fit(X.iloc[train], y.iloc[train], sensitive_features=groups.iloc[train],
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+234 passed, 23 warnings in 5.71s

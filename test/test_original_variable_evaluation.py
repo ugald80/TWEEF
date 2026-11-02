@@ -126,6 +126,7 @@ def test_postprocessor_rejects_unknown_or_incomplete_groups():
 
 
 def test_legacy_surrogate_helper_never_fits_test(monkeypatch):
+    pytest.importorskip("interpret")
     from TWEEF.ProcessorInterpretability import InterpretabilityProcessing
     import importlib
     module = importlib.import_module("TWEEF.ProcessorInterpretability")

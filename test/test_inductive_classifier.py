@@ -9,6 +9,8 @@ from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 
+pytest.importorskip("interpret")
+
 from TWEEF.Aggregation import MechanismResult
 from TWEEF.Evaluation import effective_complexity, prediction_loss
 from TWEEF.TrustworthyClassifier import TrustworthyClassifier
@@ -243,6 +245,7 @@ def test_invalid_alignment_is_rejected(data):
 
 
 def test_actual_equalized_odds_chain_is_stable_and_ec_identity_is_zero(data):
+    pytest.importorskip("aif360")
     model = fitted(data, postprocessor="calibrated_equalized_odds")
     X, y, groups = (part.iloc[200:] for part in data)
     p = model.predict_proba(X, sensitive_features=groups)[:, 1]

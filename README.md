@@ -138,6 +138,89 @@ made explicit. Repeated splits overlap and are descriptive evidence from one
 dataset. Native mechanism scores are not interchangeable units; a higher average
 score alone is not evidence of greater real trustworthiness.
 
+### Validated results of the final-surrogate run
+
+The completed run contains **160 final candidates, 800 internal-CV reference rows,
+7,840 mechanism evaluations and 240 CV-based selection decisions**. All ten seeds
+and eight teachers completed. The historical audit verifies identical external
+splits and teacher predictions in all 80 comparisons. Values below are means over
+ten repeated splits for the fixed 500-round EBM candidate; the final column uses
+KL with tolerance 0.05 nats. SDs and explicit label-loss comparisons are available
+in [`metrics_by_model.csv`](experiments/results/german_final_surrogate/metrics_by_model.csv).
+
+| Teacher | Teacher accuracy | Base student accuracy | Final accuracy | Teacher EO | Final EO | Final EC (KL) |
+|---|---:|---:|---:|---:|---:|---:|
+| DT | 0.6810 | 0.7585 | 0.7300 | 0.9335 | 0.8810 | 0.850 |
+| RF | 0.7550 | 0.7585 | 0.7300 | 0.9635 | 0.8810 | 0.850 |
+| ET | 0.7445 | 0.7585 | 0.7300 | 0.9480 | 0.8810 | 0.850 |
+| LR | 0.7495 | 0.7440 | 0.7270 | 0.9135 | 0.8900 | 0.285 |
+| L-SVM | 0.7580 | 0.7575 | 0.7380 | 0.9135 | 0.8920 | 0.285 |
+| AB | 0.7390 | 0.7575 | 0.7505 | 0.9350 | 0.9220 | 0.300 |
+| GB | 0.7525 | 0.7415 | 0.7210 | 0.9405 | 0.9175 | 0.760 |
+| XGB | 0.7470 | 0.7585 | 0.7300 | 0.9400 | 0.8810 | 0.850 |
+
+The mean final Accuracy improves over DT and AdaBoost teachers and decreases for
+the other six. Final hard-label EO decreases on average for all eight. Thus this
+run validates execution and exposes tradeoffs; it does not demonstrate a general
+fairness improvement. In the 80 fixed-candidate cases, **10** miss the diagnostic
+teacher/student agreement target of 0.8, **38** miss held-out EO of 0.9, and **28**
+have a calibrated postprocessing mixing rate outside [0,1]. The effective rate is
+saturated as in AIF360's comparison rule and the unattainability is reported.
+These three diagnostics describe different conditions. The postprocessor targets
+generalized FNR on calibration data, which neither guarantees a held-out hard-label
+EO threshold nor causes TWEEF to replace the student with its teacher.
+
+DT, RF, ET and XGB yield exactly the same final probabilities and labels within
+each of the ten seeds at this fixed student budget. Their base-student class
+predictions also coincide. Distillation uses teacher predictions on training
+inputs; teachers fitting the same training labels can produce the same student.
+The four rows therefore do not represent four independent distinct final predictors.
+
+With uniform weights, the native mechanism means are:
+
+| Teacher | LWA | GWA | SL |
+|---|---:|---:|---:|
+| DT | 0.5667 | 0.8083 | 0.7899 |
+| RF | 0.5667 | 0.8083 | 0.7899 |
+| ET | 0.5667 | 0.8083 | 0.7899 |
+| LR | 0.3333 | 0.4024 | 0.6557 |
+| L-SVM | 0.3833 | 0.4446 | 0.6586 |
+| AB | 0.4500 | 0.6425 | 0.6772 |
+| GB | 0.5500 | 0.7064 | 0.7780 |
+| XGB | 0.5667 | 0.8083 | 0.7899 |
+
+These are native mechanism outputs with different meanings. Their numerical sizes
+cannot establish comparative quality. In complete-flow selection:
+
+| Mechanism | Selects 100 rounds | Selects 500 rounds | Exact CV ties | Mean test accuracy | Mean test EO |
+|---|---:|---:|---:|---:|---:|
+| LWA | 69 | 11 | 45 | 0.7315 | 0.8952 |
+| GWA | 60 | 20 | 35 | 0.7311 | 0.8946 |
+| SL | 71 | 9 | 35 | 0.7318 | 0.8960 |
+
+All three mechanisms choose the same candidate in 66 of 80 teacher/seed cases.
+Exact score ties prefer the 100-round budget. The small differences in average
+held-out outcomes are descriptive and do not establish superiority.
+
+EC permutes the 20 original predictor variables while keeping sensitive group
+metadata fixed for each observation. With group-dependent postprocessing, this is
+**EC conditional on the fixed group**; it does not measure sensitivity to an
+additional group input. Recomputing group membership from a perturbed status
+variable would define a different intervention and a different experiment.
+
+See the [machine-readable interpretation](experiments/results/german_final_surrogate/interpretation.json),
+[full-flow decisions](experiments/results/german_final_surrogate/full_flow_selections.csv)
+and [verification audit](experiments/results/german_final_surrogate/verification.json).
+
+The complete optional-dependency suite passed **234 tests**, including real EBM,
+fairness inference and serialization. The core environment passed **176 tests**
+with nine optional tests/modules skipped. Recompute the saved-result audit without
+retraining with `python experiments/verify_final_surrogate.py --verify`; its
+18 controls include source identity, partition provenance, CV decisions and
+mechanism-score recomputation.
+
+![Final surrogate and mechanism comparison](experiments/results/german_final_surrogate/german_final_surrogate.png)
+
 ## Migration from the earlier classifier
 
 Prefer `metric_weights`, explicit EC configuration and explicit calibration data.

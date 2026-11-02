@@ -1,0 +1,31 @@
+{
+  "protocol": "german-final-surrogate-original-features-v1",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "models": [
+    "DT",
+    "RF",
+    "ET",
+    "LR",
+    "L-SVM",
+    "AB",
+    "GB",
+    "XGB"
+  ],
+  "fitted_final_candidates": 160,
+  "reference_rows": 800,
+  "score_rows": 7840,
+  "full_flow_decisions": 240,
+  "interpretation": "Descriptive paired repeated splits on one dataset. Higher native mechanism scores do not establish greater real trustworthiness.",
+  "historical_ec_comparability": "EC perturbation unit, ranking protocol, final predictor and loss mode differ; historical score changes cannot be attributed to aggregation alone."
+}

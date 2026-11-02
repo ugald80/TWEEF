@@ -1,0 +1,7 @@
+aspect,historical_german_ec_kl,new_protocol
+Final predictor,Original teacher only,EBM surrogate plus persisted group postprocessing
+EC variables,61 encoded columns,20 original variables
+EC ranking,Native trees; permutation on evaluation labels for LR/SVM,"Permutation on training only, frozen before test"
+EC loss,KL if probabilities; disagreement otherwise,Explicit KL for final predictors; common disagreement for teacher/student comparison
+Mechanism reference,Calibration partition,Pooled training-only inner-CV metrics
+Comparison,Aggregation on original-model metrics,Fixed final-predictor estimation and CV-only candidate selection

@@ -1,0 +1,733 @@
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+WARNING:root:No module named 'tensorflow': AdversarialDebiasing will be unavailable. To install, run:
+pip install 'aif360[AdversarialDebiasing]'
+WARNING:root:No module named 'tensorflow': AdversarialDebiasing will be unavailable. To install, run:
+pip install 'aif360[AdversarialDebiasing]'
+WARNING:root:No module named 'fairlearn': ExponentiatedGradientReduction will be unavailable. To install, run:
+pip install 'aif360[Reductions]'
+WARNING:root:No module named 'fairlearn': GridSearchReduction will be unavailable. To install, run:
+pip install 'aif360[Reductions]'
+WARNING:root:No module named 'inFairness': SenSeI and SenSR will be unavailable. To install, run:
+pip install 'aif360[inFairness]'
+WARNING:root:No module named 'fairlearn': GridSearchReduction will be unavailable. To install, run:
+pip install 'aif360[Reductions]'
+seed=0 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=0 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=0 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=0 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=1 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=1 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=1 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=2 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=2 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=2 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=3 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=3 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=3 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=4 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=4 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=4 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=5 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=5 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=5 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=6 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=6 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=6 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=7 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=7 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=7 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=8 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=8 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=8 teacher=XGB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=DT rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=DT rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=RF rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=RF rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=ET rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=ET rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=LR rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=LR rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=L-SVM rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=L-SVM rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=9 teacher=AB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+  warnings.warn(
+seed=9 teacher=AB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=GB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=GB rounds=500: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=XGB rounds=100: fit + 5 CV reference rows
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/german_final_surrogate.py:202: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(Xt, yt, sensitive_features=gt, validation_data=(Xc, yc),
+seed=9 teacher=XGB rounds=500: fit + 5 CV reference rows
+Completed: /Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/results/german_final_surrogate

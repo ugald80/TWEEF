@@ -1,0 +1,18 @@
+/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/experiments/example_final_surrogate.py:71: FutureWarning: Legacy DisparateImpactRemover is not applied by the inductive pipeline: it refitted on test. Inject a reusable preprocessor to request inductive preprocessing mitigation.
+  workflow.fit(X.iloc[train], y.iloc[train], sensitive_features=groups.iloc[train],
+WARNING:root:No module named 'tensorflow': AdversarialDebiasing will be unavailable. To install, run:
+pip install 'aif360[AdversarialDebiasing]'
+WARNING:root:No module named 'tensorflow': AdversarialDebiasing will be unavailable. To install, run:
+pip install 'aif360[AdversarialDebiasing]'
+WARNING:root:No module named 'fairlearn': ExponentiatedGradientReduction will be unavailable. To install, run:
+pip install 'aif360[Reductions]'
+WARNING:root:No module named 'fairlearn': GridSearchReduction will be unavailable. To install, run:
+pip install 'aif360[Reductions]'
+WARNING:root:No module named 'inFairness': SenSeI and SenSR will be unavailable. To install, run:
+pip install 'aif360[inFairness]'
+WARNING:root:No module named 'fairlearn': GridSearchReduction will be unavailable. To install, run:
+pip install 'aif360[Reductions]'
+Final predictor: ExplainableBoostingClassifier
+Metrics: {'Accuracy': 0.725, 'equal Opportunity': 0.925, 'Effective Complexity': 0.95}
+Trustworthiness: 0.8132260279378658
+Teacher/student fidelity: {'teacher_student_class_agreement': 0.87, 'teacher_final_class_agreement': 0.865, 'teacher_accuracy': 0.75, 'student_before_postprocessing_accuracy': 0.72, 'final_accuracy': 0.725, 'minimum_class_agreement': 0.8, 'objective_met': True}

@@ -1,0 +1,139 @@
+{
+  "primary_fixed_candidate": {
+    "max_rounds": 500,
+    "cases": 80,
+    "postprocessing_unattainable": 28,
+    "fidelity_agreement_below_0_8": 10,
+    "equal_opportunity_below_0_9": 38
+  },
+  "diagnostic_meaning": {
+    "fidelity": "Teacher/base-student agreement against a 0.8 diagnostic threshold; not a model replacement or rejection rule.",
+    "fairness": "Held-out hard-label Equal Opportunity against a 0.9 diagnostic threshold; distinct from the postprocessor generalized FNR target.",
+    "unattainable": "At least one calibrated mixing rate outside [0,1]; saturated effective mixing matches the AIF360 comparison rule and does not establish objective attainment."
+  },
+  "duplicated_students": {
+    "models": [
+      "DT",
+      "RF",
+      "ET",
+      "XGB"
+    ],
+    "evidence": [
+      {
+        "seed": 0,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 1,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 2,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 3,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 4,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 5,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 6,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 7,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 8,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      },
+      {
+        "seed": 9,
+        "base_labels_identical": true,
+        "final_labels_identical": true,
+        "final_probabilities_identical": true
+      }
+    ],
+    "interpretation": "Teacher training predictions are distillation targets. Teachers fitting the same training labels can yield identical students; these rows are not independent distinct final predictors."
+  },
+  "ec_interpretation": "EC perturbs 20 original predictor variables while raw sensitive group metadata remains fixed per observation. With group-dependent postprocessing it is conditional on fixed group, not a measurement of sensitivity to an additional group input.",
+  "full_flow": {
+    "gwa": {
+      "selected_100_rounds": 60,
+      "selected_500_rounds": 20,
+      "exact_cv_score_ties": 35,
+      "mean_test_accuracy": 0.731125,
+      "mean_test_equal_opportunity": 0.8945624999999999,
+      "mean_test_ec_kl": 0.6793750000000001,
+      "diagnostic_counts": {
+        "postprocessing_unattainable": 27,
+        "fidelity_objective_unmet": 10,
+        "fairness_objective_unmet": 39
+      }
+    },
+    "lwa": {
+      "selected_100_rounds": 69,
+      "selected_500_rounds": 11,
+      "exact_cv_score_ties": 45,
+      "mean_test_accuracy": 0.7314999999999999,
+      "mean_test_equal_opportunity": 0.8951874999999999,
+      "mean_test_ec_kl": 0.69125,
+      "diagnostic_counts": {
+        "postprocessing_unattainable": 27,
+        "fidelity_objective_unmet": 10,
+        "fairness_objective_unmet": 38
+      }
+    },
+    "sl": {
+      "selected_100_rounds": 71,
+      "selected_500_rounds": 9,
+      "exact_cv_score_ties": 35,
+      "mean_test_accuracy": 0.7318125,
+      "mean_test_equal_opportunity": 0.8960000000000001,
+      "mean_test_ec_kl": 0.6993750000000001,
+      "diagnostic_counts": {
+        "postprocessing_unattainable": 27,
+        "fidelity_objective_unmet": 10,
+        "fairness_objective_unmet": 38
+      }
+    }
+  },
+  "full_flow_operator_pair_choice_disagreements": {
+    "lwa_gwa": 11,
+    "lwa_sl": 4,
+    "gwa_sl": 13
+  },
+  "full_flow_all_three_choose_same_candidate": 66,
+  "historical_predictive_audit": {
+    "pairs": 80,
+    "identical_teacher_predictions": true,
+    "identical_external_split_indices": true
+  },
+  "limits": "One dataset, overlapping repeated splits, native scores with different semantics. Full-flow average outcome differences do not establish operator superiority."
+}

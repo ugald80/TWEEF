@@ -1,0 +1,121 @@
+{
+  "protocol_sha256": "c1bd66b5ccbfa3d0c69cddcee8ce52472e0ba0e558fb0667fc311beffa6dfee0",
+  "protocol": {
+    "protocol": "german-final-surrogate-original-features-v1",
+    "dataset_sha256": "052476452bc016da5b670c01b976f1563ad2de9465dc00e9ec51e46a7db3c212",
+    "dataset_rows": 1000,
+    "original_feature_count": 20,
+    "metric_names": [
+      "Accuracy",
+      "equal Opportunity",
+      "Effective Complexity"
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "models": [
+      "DT",
+      "RF",
+      "ET",
+      "LR",
+      "L-SVM",
+      "AB",
+      "GB",
+      "XGB"
+    ],
+    "reference_cv": 5,
+    "candidate_rounds": [
+      100,
+      500
+    ],
+    "postprocessor": "calibrated_equalized_odds",
+    "ec": {
+      "loss": "bernoulli_kl",
+      "loss_threshold": 0.05,
+      "feature_unit": "original",
+      "ranking_method": "permutation",
+      "repeats": 3
+    },
+    "comparison_ec": {
+      "loss": "class_disagreement",
+      "loss_threshold": 0.05
+    },
+    "student": {
+      "type": "ExplainableBoostingClassifier",
+      "interactions": 0,
+      "outer_bags": 1,
+      "n_jobs": 1,
+      "candidate_max_rounds": [
+        100,
+        500
+      ]
+    },
+    "split": {
+      "train": 0.6,
+      "calibration": 0.2,
+      "test": 0.2,
+      "stratification": "target x raw gender",
+      "test_use": "evaluation only"
+    },
+    "reference": "pooled inner-CV held-out final-predictor metrics of all candidates and teachers within each seed",
+    "selection": "mean mechanism score across each candidate's CV metric rows; ties choose lower max_rounds",
+    "sensitive_groups": {
+      "male": 690,
+      "female": 310
+    },
+    "environment": {
+      "numpy": "1.26.4",
+      "pandas": "2.3.3",
+      "scipy": "1.13.1",
+      "scikit-learn": "1.5.2",
+      "interpret-core": "0.6.15",
+      "xgboost": "2.1.4",
+      "aif360": "0.6.1"
+    },
+    "runtime_environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "DYLD_FALLBACK_LIBRARY_PATH": "/Users/ugalde/Documents/Research/Trustwortiness_Estimation_for_Machine_Learning_Models/TWEEF/.venv-paper/lib/python3.9/site-packages/sklearn/.dylibs"
+    },
+    "source_sha256": {
+      "TWEEF/Aggregation.py": "72db90ec2f9913b1df700fbf9fc3090b3b698e67f7f8e0699bb2736201d25e04",
+      "TWEEF/Base.py": "e44822e02e446c1680a6b316743c99d16207edeb5d5522c85be023a945089c1d",
+      "TWEEF/Calibration.py": "f63a25540dd4ec59beea53065324a3102eb51931126cb69b59864bf948c8e318",
+      "TWEEF/Constants.py": "33d8861e85042adb43ef2eb84465fcb1bc1579e20debf408ea02708303b0303d",
+      "TWEEF/EstimatorFairness.py": "f896ff3d3133ce0501c3ebc4da67b079595c3ac079157e9f155a5b964f824bd3",
+      "TWEEF/EstimatorInterpretability.py": "bc533fcc6f0e43fcdaed7de37d9c8193339998a0b0012e86b715e0120c2ec8c8",
+      "TWEEF/EstimatorPerformance.py": "99113db81e5bffc026cc02f7a3975406212c6d6d24735b0ce141d45cc795f3fb",
+      "TWEEF/EstimatorTrustworthiness.py": "1d41969352008666497960caa84cc103053956b7d1488cc0bca25c1008fb6a8a",
+      "TWEEF/Evaluation.py": "e55e272064dc7a9f56980782dd4e8ab6d83ab11aa601875d72a1b92bed5bf5e9",
+      "TWEEF/Logging.py": "529a58c8c223583d53ca87a778e03cb04b8853a81ba6b69c815d93de2e4636f5",
+      "TWEEF/MatrixScores.py": "2fc5bbfc1fd2504c73a77cb7d729d5bcadd87d3f48139554e277f28f74b017e3",
+      "TWEEF/Metrics.py": "88c6fe646c07858b15c798c4683239ec989df1635980ead403bdb2ff1f059828",
+      "TWEEF/PostProcessing.py": "7a25ec2c93c37d55b3ad4cee41e9729b05e1dfb08e8cd8a64d55fcd7b399774d",
+      "TWEEF/Predictor.py": "49a91c9bccc090d8729faa40b4a81c93b034fe279c2ed93d77ef1fd52b9de584",
+      "TWEEF/ProcessorFairness.py": "5afc0a4dbbe6c8b58902733c632bfac6404c07e04b9c25eb15d7111a441262a2",
+      "TWEEF/ProcessorFairnessPostProcessing.py": "a477e7d2f953f158960dd7c9badcd78c37ee4d2fc0857e972d3a7f5b206ae426",
+      "TWEEF/ProcessorFairnessPreProcessing.py": "3c96b8da7b46aa1cb13a0a4ec0c8069576183012b2afc2f0fbe86f7499855118",
+      "TWEEF/ProcessorInterpretability.py": "85c57164bce304cb5f6db497a3ca5826bde68d2e7dd051b04225abddb31d09ec",
+      "TWEEF/TrustworthyClassiffier.py": "c71ce48736a27b165d8f6d1a91f8a40f73253f8fcd99358531d902433faa840c",
+      "TWEEF/TrustworthyClassifier.py": "3199df7008f662fa665870e73f92af2a7e9853d22a0c7af0e7b3dff8a6295561",
+      "TWEEF/UtilsFairnessGroup.py": "e6bd377d06bab8ef2d88162f7d463b69856fb8139248ddabe74d2e9015e7b3e5",
+      "TWEEF/Validation.py": "c39d5498dafe554111e11a175d7a64c2be7baa2c2665bc5c77fe9376ff071231",
+      "TWEEF/__init__.py": "da59c586202bd79331b25366254ca8289c953ae2355cfe813b17723246c706f8",
+      "experiments/german_final_surrogate.py": "7651cb03eb895d2a35a331378d6771549bb23313f8e40d63009d7aea1388167c",
+      "experiments/german_aggregation.py": "b6ff6c0c7303d63c0d537215338323d25468a5ee4a2293a10272fc19fbb40cdc"
+    }
+  },
+  "source_commit_at_start": "d0df4e080f95a5306b762d2400e4a18d89160c8a",
+  "source_tree_dirty_at_start": false,
+  "source_identity": "source_sha256 is authoritative for uncommitted implementation files",
+  "historical_results_modified": false
+}
